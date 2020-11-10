@@ -17,9 +17,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        viewFinder = (TextureView)findViewById(R.id.view_finder);
-        mTextView = (TextView) findViewById(R.id.text);
-
 //        GrantPermissions.allPermissionsGranted(this) ? viewFinder.post(startCamera)
 //                : GrantPermissions.requestPermissions(this);
 

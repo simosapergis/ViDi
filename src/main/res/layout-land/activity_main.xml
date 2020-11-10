@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/cardview_dark_background"
-    android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".MainActivity"
     >
+
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/cameraFragment"
@@ -15,26 +15,21 @@
         android:layout_width="250dp"
         android:layout_height="300dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintEnd_toStartOf="@+id/captureFragment"
+        app:layout_constraintHorizontal_bias="0.475"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.106"
-        tools:layout="@layout/camera_fragment" />
+        app:layout_constraintVertical_bias="0.513" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/captureFragment"
         android:name="com.sapergis.vidi.fragments.CaptureFragment"
         android:layout_width="240dp"
         android:layout_height="297dp"
+
+        android:layout_marginEnd="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cameraFragment"
-        tools:layout="@layout/capture_fragment"
-        />
-
-
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
