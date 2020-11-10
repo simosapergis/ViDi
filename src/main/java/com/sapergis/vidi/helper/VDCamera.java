@@ -7,6 +7,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.google.android.gms.common.api.internal.StatusExceptionMapper;
 
@@ -20,6 +21,7 @@ public class VDCamera {
     private Runnable camera;
     Fragment fragment;
     TextureView viewFinder;
+    Button b;
 
     public VDCamera (Fragment fragment, TextureView textureView){
         this.fragment = fragment;
