@@ -1,5 +1,6 @@
 package com.sapergis.vidi.fragments;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.camera.core.CameraX;
@@ -13,6 +14,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import com.sapergis.vidi.GrantPermissions;
 import com.sapergis.vidi.R;
@@ -20,7 +22,7 @@ import com.sapergis.vidi.helper.VDCamera;
 import com.sapergis.vidi.viewmodels.CameraViewModel;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
-public class CameraFragment extends Fragment {
+public class CameraFragment extends Fragment implements VDCamera.UpdateViewObjectsListener{
     private TextureView viewFinder;
     private Button cameraButton;
     private SharedViewModel sharedViewModel;
@@ -55,12 +57,23 @@ public class CameraFragment extends Fragment {
                 //TODO take a shot
             }
         });
-        vdCamera = new VDCamera(this, viewFinder);
+        vdCamera = new VDCamera(this, viewFinder, cameraButton);
         attachCameraTo(viewFinder);
         return view;
     }
 
     private void attachCameraTo (TextureView textureView){
         textureView.post(vdCamera.getCamera());
+    }
+
+    @Override
+    public void updateBitmap(Bitmap bitmap) {
+        //Bitmap bitmap1 = bitmap;
+        //sharedViewModel.setBitmap(bitmap);
+    }
+
+    @Override
+    public void updatePreviewImage(ImageView imageView) {
+        ImageView imageView1 = imageView;
     }
 }
