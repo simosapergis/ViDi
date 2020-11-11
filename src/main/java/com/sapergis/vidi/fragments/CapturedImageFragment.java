@@ -12,11 +12,11 @@ import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDBitmap;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
-public class CaptureFragment extends Fragment {
+public class CapturedImageFragment extends Fragment {
     private SharedViewModel sharedViewModel;
     private ImageView previewImage;;
 
-    public CaptureFragment() {
+    public CapturedImageFragment() {
         // Required empty public constructor
     }
 
@@ -35,5 +35,11 @@ public class CaptureFragment extends Fragment {
                     previewImage.setImageBitmap(VDBitmap.rotateBitmap(bitmap,90))
                 );
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        sharedViewModel.getCaptured().removeObservers(this);
     }
 }

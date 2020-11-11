@@ -23,7 +23,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/captureFragment"
-        android:name="com.sapergis.vidi.fragments.CaptureFragment"
+        android:name="com.sapergis.vidi.fragments.CapturedImageFragment"
         android:layout_width="240dp"
         android:layout_height="297dp"
 

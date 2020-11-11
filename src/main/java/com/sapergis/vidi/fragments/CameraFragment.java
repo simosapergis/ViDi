@@ -22,7 +22,7 @@ import com.sapergis.vidi.helper.VDCamera;
 import com.sapergis.vidi.viewmodels.CameraViewModel;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
-public class CameraFragment extends Fragment implements VDCamera.UpdateViewObjectsListener{
+public class CameraFragment extends Fragment{
     private TextureView viewFinder;
     private Button cameraButton;
     private SharedViewModel sharedViewModel;
@@ -66,14 +66,14 @@ public class CameraFragment extends Fragment implements VDCamera.UpdateViewObjec
         textureView.post(vdCamera.getCamera());
     }
 
-    @Override
-    public void updateBitmap(Bitmap bitmap) {
-        //Bitmap bitmap1 = bitmap;
-        //sharedViewModel.setBitmap(bitmap);
-    }
-
-    @Override
-    public void updatePreviewImage(ImageView imageView) {
-        ImageView imageView1 = imageView;
-    }
+//    @Override
+//    public void updateBitmap(Bitmap bitmap) {
+//        //Bitmap bitmap1 = bitmap;
+//        //sharedViewModel.setBitmap(bitmap);
+//    }
+//
+//    @Override
+//    public void updatePreviewImage(ImageView imageView) {
+//        ImageView imageView1 = imageView;
+//    }
 }
