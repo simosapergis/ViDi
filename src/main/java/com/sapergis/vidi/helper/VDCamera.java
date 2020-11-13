@@ -32,8 +32,6 @@ public class VDCamera {
     private Fragment fragment;
     private TextureView viewFinder;
     private Button captureButton;
-    private ImageView imageView;
-    private Bitmap bitmap;
     //private UpdateViewObjectsListener listener;
     private static final String TAG = "VDCamera ->";
     private SharedViewModel sharedViewModel;
@@ -83,6 +81,7 @@ public class VDCamera {
                         .setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                         .build();
 
+
                 // Build the image capture use case and attach button click listener
                 ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
                 captureButton.setOnClickListener(view -> {
@@ -112,8 +111,6 @@ public class VDCamera {
 //                                previewImage.setImageBitmap(rotateBitmap(imageBitmap, 90));
                             }
                         }
-
-
                     });
                 });
                 CameraX.bindToLifecycle((LifecycleOwner) fragment,preview, imageCapture);

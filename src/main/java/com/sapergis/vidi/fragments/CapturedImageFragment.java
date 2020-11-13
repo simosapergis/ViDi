@@ -20,6 +20,13 @@ public class CapturedImageFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public static CapturedImageFragment newInstance(String param1, String param2) {
+        CapturedImageFragment fragment = new CapturedImageFragment();
+        Bundle args = new Bundle();
+        return fragment;
+    }
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

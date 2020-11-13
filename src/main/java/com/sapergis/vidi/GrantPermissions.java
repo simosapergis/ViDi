@@ -9,7 +9,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class GrantPermissions {
-    private static final int REQUEST_CODE_PERMISSIONS = 1000;
+    public static final int REQUEST_CODE_PERMISSIONS = 1000;
     private static  String[] REQUIRED_PERMISSIONS = new String[] {Manifest.permission.CAMERA};
 
     public static boolean  allPermissionsGranted(Activity activity){

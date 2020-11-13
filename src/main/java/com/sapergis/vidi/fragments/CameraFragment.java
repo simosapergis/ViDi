@@ -1,25 +1,18 @@
 package com.sapergis.vidi.fragments;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
-import androidx.camera.core.CameraX;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStore;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 
-import com.sapergis.vidi.GrantPermissions;
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDCamera;
-import com.sapergis.vidi.viewmodels.CameraViewModel;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
 public class CameraFragment extends Fragment{
