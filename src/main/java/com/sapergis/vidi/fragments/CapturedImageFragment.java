@@ -41,6 +41,7 @@ public class CapturedImageFragment extends Fragment {
         sharedViewModel.getCaptured().observe(getViewLifecycleOwner(), bitmap ->
                     previewImage.setImageBitmap(VDBitmap.rotateBitmap(bitmap,90))
                 );
+        //sharedViewModel.textToSpeech(this.getActivity());
         return view;
     }
 

@@ -2,6 +2,7 @@ package com.sapergis.vidi.helper;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.os.Parcelable;
 
 public class VDBitmap  {
 

@@ -44,14 +44,12 @@ public class CameraFragment extends Fragment{
         View view = inflater.inflate(R.layout.camera_fragment, container, false);
         viewFinder = (TextureView)view.findViewById(R.id.view_finder);
         cameraButton = (Button) view.findViewById(R.id.cameraButton);
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO take a shot
-            }
-        });
         vdCamera = new VDCamera(this, viewFinder, cameraButton);
         attachCameraTo(viewFinder);
+        vdCamera.setAutoCapture(vdCamera.DEFAULT_INTERVAL, 5);
+        sharedViewModel.getCaptured().observe(this.getActivity(), bitmap -> {
+            vdCamera.releaseAutoCapture();
+        });
         return view;
     }
 

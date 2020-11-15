@@ -3,6 +3,7 @@ package com.sapergis.vidi.helper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
@@ -13,6 +14,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.sapergis.vidi.MainActivity;
+import com.sapergis.vidi.interfaces.AutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
 import java.io.File;
@@ -27,27 +30,21 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
-public class VDCamera {
+public class VDCamera implements AutoCapture {
     private Runnable camera;
     private Fragment fragment;
     private TextureView viewFinder;
     private Button captureButton;
-    //private UpdateViewObjectsListener listener;
-    private static final String TAG = "VDCamera ->";
     private SharedViewModel sharedViewModel;
-
-//    Listener will not be used since we have used the ViewModel to update data
-//    public interface UpdateViewObjectsListener{
-//        void updateBitmap(Bitmap bitmap);
-//        void updatePreviewImage(ImageView imageView);
-//    }
+    private Runnable capture;
+    private Handler captureHandler = new Handler();
+    private int count = 1;
 
     public VDCamera (Fragment fragment, TextureView textureView, Button captureButton){
         this.fragment = fragment;
         this.viewFinder = textureView;
         this.captureButton = captureButton;
-        sharedViewModel = new ViewModelProvider(fragment.requireActivity()).get(SharedViewModel.class);
-        //setListener();
+        this.sharedViewModel = new ViewModelProvider(fragment.requireActivity()).get(SharedViewModel.class);
         initiateCamera();
     }
 
@@ -85,6 +82,7 @@ public class VDCamera {
                 // Build the image capture use case and attach button click listener
                 ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
                 captureButton.setOnClickListener(view -> {
+                    //TODO change functionality of capture - dont save it to disk
                     File file = new File(fragment.getActivity().getExternalMediaDirs()[0], System.currentTimeMillis() + ".jpg");
                     imageCapture.takePicture(file, new ImageCapture.OnImageSavedListener(){
 
@@ -93,7 +91,7 @@ public class VDCamera {
                                             @Nullable Throwable exc) {
                             String msg = "Photo capture failed: " + message;
                             Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            Log.e(TAG, msg);
+                            Log.e(MainActivity.TAG, msg);
                             if (exc != null) {
                                 exc.printStackTrace();
                             }
@@ -103,7 +101,7 @@ public class VDCamera {
                         public void onImageSaved(File file) {
                             String msg = "Photo capture succeeded: " + file.getAbsolutePath();
                             Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, msg);
+                            Log.d(MainActivity.TAG, msg);
 
                             if(file.exists()){
                                 //listener.updateBitmap( BitmapFactory.decodeFile(file.getAbsolutePath()) );
@@ -149,14 +147,27 @@ public class VDCamera {
         viewFinder.setTransform(matrix);
     }
 
-//    private void setListener(){
-//        if(fragment instanceof UpdateViewObjectsListener){
-//            listener = (UpdateViewObjectsListener) fragment;
-//        }else{
-//            throw new RuntimeException(fragment.toString()
-//                    + " must implement UpdateViewObjectsListener");
-//        }
-//    }
+    @Override
+    public void setAutoCapture(int interval, int captureRepetitions) {
+        capture = new Runnable() {
+            @Override
+            public void run() {
+                captureButton.performClick();
+                Log.d(MainActivity.TAG, "Capture no "+count);
+                if(count++ < captureRepetitions){
+                    captureHandler.postDelayed(this, interval);
+                }
+            }
+        };
+        captureHandler.post(capture);
+    }
+
+    @Override
+    public void releaseAutoCapture() {
+        captureHandler.removeCallbacks(capture);
+        count = 1;
+        Log.d(MainActivity.TAG, "Autocapture runnable stopped");
+    }
 
     public Runnable getCamera (){
         return camera;
