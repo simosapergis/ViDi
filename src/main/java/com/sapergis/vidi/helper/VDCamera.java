@@ -11,8 +11,8 @@ import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-import com.sapergis.vidi.MainActivity;
-import com.sapergis.vidi.interfaces.AutoCapture;
+
+import com.sapergis.vidi.interfaces.IVDAutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 import java.io.File;
 import androidx.annotation.Nullable;
@@ -25,7 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
-public class VDCamera implements AutoCapture {
+public class VDCamera implements IVDAutoCapture {
     private Runnable camera;
     private Fragment fragment;
     private TextureView viewFinder;

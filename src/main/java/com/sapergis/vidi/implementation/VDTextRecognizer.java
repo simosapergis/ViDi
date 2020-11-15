@@ -17,8 +17,7 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.sapergis.vidi.helper.VDHelper;
-import com.sapergis.vidi.helper.VDText;
-import com.sapergis.vidi.interfaces.VDTextOperations;
+import com.sapergis.vidi.interfaces.IVDTextOperations;
 
 
 import java.util.Arrays;
@@ -35,13 +34,13 @@ public class VDTextRecognizer {
 //    FirebaseVisionImage vdImage;
 
 
-    public VDTextRecognizer(Bitmap bitmap, VDTextOperations vdTextOperations) {
+    public VDTextRecognizer(Bitmap bitmap, IVDTextOperations IVDTextOperations) {
 //        this.bitmap = bitmap;
 //        this.vdTextOperations = vdTextOperations;
         //this.sharedViewModel = sharedViewModel;
     }
 
-    public static void runCloudTextRecognition(Bitmap bitmap, VDTextOperations vdTextOperations) {
+    public static void runCloudTextRecognition(Bitmap bitmap, IVDTextOperations IVDTextOperations) {
         FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromBitmap(bitmap);
         FirebaseVisionCloudTextRecognizerOptions options = new FirebaseVisionCloudTextRecognizerOptions.Builder()
                 .setLanguageHints(Arrays.asList(VDHelper.LOCALES))
@@ -55,9 +54,7 @@ public class VDTextRecognizer {
                         //String refinedText =  vdText.refineText(firebaseVisionText.getText());
                         //vdText.setRawText(refinedText);
                         Log.d(VDHelper.TAG, "TEXT FOUND [CLOUD]=> " + firebaseVisionText.getText());
-                        vdTextOperations.onTextRecognized(firebaseVisionText.getText());
-                        //mutableVDText.postValue(vdText);
-                        //new VDLanguageIdentifier(mutableVDText).identifyLanguage(vdText);
+                        IVDTextOperations.onTextRecognized(firebaseVisionText.getText());
                     }
                 });
         result.addOnFailureListener(
@@ -70,8 +67,8 @@ public class VDTextRecognizer {
         );
     }
 
-    public static void runDeviceTextRecognition(Bitmap bitmap, VDTextOperations vdTextOperations){
-        InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
+    public static void runDeviceTextRecognition(Bitmap bitmap, IVDTextOperations IVDTextOperations){
+        InputImage inputImage = InputImage.fromBitmap(bitmap, 90);
         TextRecognizer recognizer = TextRecognition.getClient();
         Task<Text> result = recognizer.process(inputImage);
         result.addOnSuccessListener(new OnSuccessListener<Text>() {
@@ -79,7 +76,7 @@ public class VDTextRecognizer {
                             public void onSuccess(Text visionText) {
                                 // Task completed successfully
                                 Log.d(VDHelper.TAG, "TEXT FOUND [DEVICE]=>" +visionText.getText());
-                                vdTextOperations.onTextRecognized(visionText.getText());
+                                IVDTextOperations.onTextRecognized(visionText.getText());
                             }
                         })
                         .addOnFailureListener(
@@ -90,6 +87,7 @@ public class VDTextRecognizer {
                                         // ...
                                     }
                                 });
+
     }
 
 }

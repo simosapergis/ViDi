@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDCamera;
+import com.sapergis.vidi.interfaces.IVDAutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
 public class CameraFragment extends Fragment {
@@ -43,10 +44,10 @@ public class CameraFragment extends Fragment {
         cameraButton = (Button) view.findViewById(R.id.cameraButton);
         vdCamera = new VDCamera(this, viewFinder, cameraButton);
         attachCameraTo(viewFinder);
-        vdCamera.setAutoCapture(vdCamera.DEFAULT_INTERVAL, 5);
-        sharedViewModel.getCaptured().observe(this.getActivity(), bitmap -> {
-            vdCamera.releaseAutoCapture();
-        });
+        vdCamera.setAutoCapture(IVDAutoCapture.DEFAULT_INTERVAL, 5);
+        sharedViewModel.getValidRecognizedText().observe(getViewLifecycleOwner(), vdText ->
+                    vdCamera.releaseAutoCapture()
+                );
         return view;
     }
 
@@ -54,4 +55,9 @@ public class CameraFragment extends Fragment {
         textureView.post(vdCamera.getCamera());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sharedViewModel.getValidRecognizedText().removeObservers(this);
+    }
 }

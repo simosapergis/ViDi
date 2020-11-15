@@ -10,11 +10,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDBitmap;
+import com.sapergis.vidi.implementation.VDTextToSpeech;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
 public class CapturedImageFragment extends Fragment {
     private SharedViewModel sharedViewModel;
     private ImageView previewImage;;
+    private VDTextToSpeech vdTextToSpeech;
 
     public CapturedImageFragment() {
         // Required empty public constructor
@@ -31,6 +33,7 @@ public class CapturedImageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        vdTextToSpeech = new VDTextToSpeech(this.getContext());
     }
 
     @Override
@@ -41,7 +44,9 @@ public class CapturedImageFragment extends Fragment {
         sharedViewModel.getCaptured().observe(getViewLifecycleOwner(), bitmap ->
                     previewImage.setImageBitmap(VDBitmap.rotateBitmap(bitmap,90))
                 );
-        //sharedViewModel.textToSpeech(this.getActivity());
+        sharedViewModel.getValidRecognizedText().observe(getViewLifecycleOwner(), vdText ->
+                    vdTextToSpeech.speak(vdText.getRawText())
+                );
         return view;
     }
 
@@ -49,5 +54,7 @@ public class CapturedImageFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         sharedViewModel.getCaptured().removeObservers(this);
+        sharedViewModel.getValidRecognizedText().removeObservers(this);
+        vdTextToSpeech.shutDown();
     }
 }

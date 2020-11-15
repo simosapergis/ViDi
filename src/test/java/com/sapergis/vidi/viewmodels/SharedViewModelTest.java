@@ -1,22 +1,58 @@
 package com.sapergis.vidi.viewmodels;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.widget.ImageView;
+
+import com.google.mlkit.vision.common.InputImage;
+import com.sapergis.vidi.GrantPermissions;
+import com.sapergis.vidi.MainActivity;
+
 import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Assert;
-
+import org.junit.Test;
+import java.io.File;
 import static org.junit.Assert.*;
 
-public class SharedViewModelTest extends TestCase {
+public class SharedViewModelTest {
     SharedViewModel sharedViewModel;
+    Bitmap storedImage;
+    MainActivity mainActivity = new MainActivity();
 
     @Before
     public void setUp() throws Exception {
-        sharedViewModel = new SharedViewModel();
+
+//        if(GrantPermissions.allPermissionsGranted(mainActivity)){
+//            storedImage = InputImage.fromFilePath(mainActivity.getApplicationContext(),
+//                    Uri.fromFile(new File("/storage/emulated/0/DCIM/Camera/en_vidi_sample.jpg")));
+            File file = new File("/storage/emulated/0/DCIM/Camera/en_vidi_sample.jpg");
+
+            storedImage =BitmapFactory.decodeFile(file.getAbsolutePath(),null);
+
+//        }
+//        else{
+//            GrantPermissions.requestPermissions(mainActivity);
+//        }
     }
 
-    public void testGetCamera(){
-        Assert.assertTrue(sharedViewModel.startCamera instanceof Runnable);
+    @Test
+    public void testTextRecognitionOn() {
+        sharedViewModel.textRecognitionOn(storedImage);
+        assertTrue(storedImage instanceof  Bitmap);
     }
 
+    @Test
+    public void onTextRecognized() {
+    }
+
+    @Test
+    public void onLanguageIdentified() {
+    }
+
+    @Test
+    public void onTextTranslated() {
+    }
 }

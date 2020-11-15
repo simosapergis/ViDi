@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.widget.Toast;
 import com.sapergis.vidi.fragments.CameraFragment;
 import com.sapergis.vidi.fragments.CapturedImageFragment;
+import com.sapergis.vidi.implementation.VDTextToSpeech;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         }else{
             GrantPermissions.requestPermissions(this);
         }
+
     }
 
     @Override
@@ -41,5 +44,10 @@ public class MainActivity extends AppCompatActivity {
                 .add(R.id.cameraFragment, cameraFragment.newInstance(null, null))
                 .add(R.id.captureFragment, capturedImageFragment.newInstance(null,null))
                 .commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
