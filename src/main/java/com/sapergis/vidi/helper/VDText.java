@@ -1,6 +1,10 @@
 package com.sapergis.vidi.helper;
 
 public class VDText {
+    private String rawText;
+    private String translatedText;
+    private String identifiedLanguage;
+
     public String getRawText() {
         return rawText;
     }
@@ -17,8 +21,12 @@ public class VDText {
         this.translatedText = translatedText;
     }
 
-    private String rawText;
-    private String translatedText;
+    public String getIdentifiedLanguage() {
+        return identifiedLanguage;
+    }
 
+    public void setIdentifiedLanguage(String identifiedLanguage) {
+        this.identifiedLanguage = identifiedLanguage;
+    }
 
 }

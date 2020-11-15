@@ -16,10 +16,10 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.TextRecognition;
-
-import com.google.mlkit.vision.text.TextRecognizerOptions;
-import com.sapergis.vidi.MainActivity;
+import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
+import com.sapergis.vidi.interfaces.VDTextOperations;
+
 
 import java.util.Arrays;
 
@@ -27,55 +27,59 @@ import androidx.annotation.NonNull;
 
 
 public class VDTextRecognizer {
-    VDText vdText = new VDText();
-    Bitmap bitmap;
+//    VDText vdText = new VDText();
+    //SharedViewModel sharedViewModel;
+//    VDTextOperations vdTextOperations;
+//    Bitmap bitmap;
 //    MutableLiveData<VDText>  mutableVDText;
 //    FirebaseVisionImage vdImage;
 
 
-    public VDTextRecognizer(Bitmap bitmap) {
-        this.bitmap = bitmap;
+    public VDTextRecognizer(Bitmap bitmap, VDTextOperations vdTextOperations) {
+//        this.bitmap = bitmap;
+//        this.vdTextOperations = vdTextOperations;
+        //this.sharedViewModel = sharedViewModel;
     }
 
-    public void runCloudTextRecognition() {
+    public static void runCloudTextRecognition(Bitmap bitmap, VDTextOperations vdTextOperations) {
         FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromBitmap(bitmap);
         FirebaseVisionCloudTextRecognizerOptions options = new FirebaseVisionCloudTextRecognizerOptions.Builder()
-                .setLanguageHints(Arrays.asList("en","el"))
+                .setLanguageHints(Arrays.asList(VDHelper.LOCALES))
                 .build();
         FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance().getCloudTextRecognizer(options);
         Task<FirebaseVisionText> result = detector.processImage(firebaseVisionImage);
         result.addOnSuccessListener(
-                        new OnSuccessListener<FirebaseVisionText>() {
-                            @Override
-                            public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                                //String refinedText =  vdText.refineText(firebaseVisionText.getText());
-                                //vdText.setRawText(refinedText);
-                                Log.d(MainActivity.TAG, "TEXT FOUND [CLOUD]=> "+firebaseVisionText.getText());
-                                vdText.setRawText(firebaseVisionText.getText());
-                                //mutableVDText.postValue(vdText);
-                                //new VDLanguageIdentifier(mutableVDText).identifyLanguage(vdText);
-                            }
-                        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                );
+                new OnSuccessListener<FirebaseVisionText>() {
+                    @Override
+                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                        //String refinedText =  vdText.refineText(firebaseVisionText.getText());
+                        //vdText.setRawText(refinedText);
+                        Log.d(VDHelper.TAG, "TEXT FOUND [CLOUD]=> " + firebaseVisionText.getText());
+                        vdTextOperations.onTextRecognized(firebaseVisionText.getText());
+                        //mutableVDText.postValue(vdText);
+                        //new VDLanguageIdentifier(mutableVDText).identifyLanguage(vdText);
+                    }
+                });
+        result.addOnFailureListener(
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
     }
 
-    public void runDeviceTextRecognition(){
-        InputImage inputImage = InputImage.fromBitmap(bitmap, 90);
+    public static void runDeviceTextRecognition(Bitmap bitmap, VDTextOperations vdTextOperations){
+        InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
         TextRecognizer recognizer = TextRecognition.getClient();
         Task<Text> result = recognizer.process(inputImage);
         result.addOnSuccessListener(new OnSuccessListener<Text>() {
                             @Override
                             public void onSuccess(Text visionText) {
                                 // Task completed successfully
-                                String ttxt = visionText.getText();
-                                Log.d(MainActivity.TAG, "TEXT FOUND [DEVICE]=>" +ttxt);
+                                Log.d(VDHelper.TAG, "TEXT FOUND [DEVICE]=>" +visionText.getText());
+                                vdTextOperations.onTextRecognized(visionText.getText());
                             }
                         })
                         .addOnFailureListener(
@@ -86,10 +90,6 @@ public class VDTextRecognizer {
                                         // ...
                                     }
                                 });
-    }
-
-    public VDText getText() {
-        return vdText;
     }
 
 }

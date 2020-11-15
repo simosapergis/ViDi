@@ -1,6 +1,5 @@
 package com.sapergis.vidi.helper;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Handler;
@@ -11,15 +10,11 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.sapergis.vidi.MainActivity;
 import com.sapergis.vidi.interfaces.AutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
-
 import java.io.File;
-
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
@@ -91,7 +86,7 @@ public class VDCamera implements AutoCapture {
                                             @Nullable Throwable exc) {
                             String msg = "Photo capture failed: " + message;
                             Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            Log.e(MainActivity.TAG, msg);
+                            Log.e(VDHelper.TAG, msg);
                             if (exc != null) {
                                 exc.printStackTrace();
                             }
@@ -101,7 +96,7 @@ public class VDCamera implements AutoCapture {
                         public void onImageSaved(File file) {
                             String msg = "Photo capture succeeded: " + file.getAbsolutePath();
                             Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            Log.d(MainActivity.TAG, msg);
+                            Log.d(VDHelper.TAG, msg);
 
                             if(file.exists()){
                                 //listener.updateBitmap( BitmapFactory.decodeFile(file.getAbsolutePath()) );
@@ -147,13 +142,17 @@ public class VDCamera implements AutoCapture {
         viewFinder.setTransform(matrix);
     }
 
+    public Runnable getCamera (){
+        return camera;
+    }
+
     @Override
     public void setAutoCapture(int interval, int captureRepetitions) {
         capture = new Runnable() {
             @Override
             public void run() {
                 captureButton.performClick();
-                Log.d(MainActivity.TAG, "Capture no "+count);
+                Log.d(VDHelper.TAG, "Capture no "+count);
                 if(count++ < captureRepetitions){
                     captureHandler.postDelayed(this, interval);
                 }
@@ -166,10 +165,7 @@ public class VDCamera implements AutoCapture {
     public void releaseAutoCapture() {
         captureHandler.removeCallbacks(capture);
         count = 1;
-        Log.d(MainActivity.TAG, "Autocapture runnable stopped");
+        Log.d(VDHelper.TAG, "Autocapture runnable stopped");
     }
 
-    public Runnable getCamera (){
-        return camera;
-    }
 }

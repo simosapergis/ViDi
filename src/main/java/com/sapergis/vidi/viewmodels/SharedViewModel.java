@@ -5,17 +5,18 @@ import android.graphics.Bitmap;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-import com.sapergis.vidi.MainActivity;
+import com.sapergis.vidi.helper.VDHelper;
+import com.sapergis.vidi.helper.VDText;
 import com.sapergis.vidi.implementation.VDTextRecognizer;
-
-import java.util.Locale;
+import com.sapergis.vidi.interfaces.VDTextOperations;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SharedViewModel extends ViewModel {
+public class SharedViewModel extends ViewModel implements VDTextOperations {
     private final MutableLiveData<Bitmap> captured = new MutableLiveData<Bitmap>();
+    private final MutableLiveData<VDText> recognizedText = new MutableLiveData<VDText>();
     TextToSpeech  tts;
 
     public void setBitmap (Bitmap bitmap){
@@ -25,13 +26,6 @@ public class SharedViewModel extends ViewModel {
 
     public LiveData<Bitmap> getCaptured(){
         return captured;
-    }
-
-    private void textRecognitionOn(Bitmap bitmap) {
-        VDTextRecognizer vdTextRecognizer = new VDTextRecognizer(bitmap);
-        Log.d(MainActivity.TAG,"TEXT RECOGNITION STARTED ");
-       //vdTextRecognizer.runCloudTextRecognition();
-        vdTextRecognizer.runDeviceTextRecognition();
     }
 
    public void textToSpeech(Context context){
@@ -46,5 +40,28 @@ public class SharedViewModel extends ViewModel {
 //                }
 //            }
 //        });
+    }
+
+    @Override
+    public void textRecognitionOn(Bitmap bitmap) {
+        //VDTextRecognizer vdTextRecognizer = new VDTextRecognizer(bitmap, this);
+        Log.d(VDHelper.TAG,"TEXT RECOGNITION STARTED ");
+        //vdTextRecognizer.runCloudTextRecognition();
+        VDTextRecognizer.runDeviceTextRecognition(bitmap, this);
+    }
+
+    @Override
+    public void onTextRecognized(String recognizedText) {
+        Log.d(VDHelper.TAG, "Text recognized is ["+recognizedText+"]");
+    }
+
+    @Override
+    public void onLanguageIdentified() {
+
+    }
+
+    @Override
+    public void onTextTranslated() {
+
     }
 }
