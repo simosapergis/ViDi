@@ -3,6 +3,7 @@ package com.sapergis.vidi.helper;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
@@ -11,21 +12,23 @@ import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-
 import com.sapergis.vidi.interfaces.IVDAutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 import java.io.File;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
-public class VDCamera implements IVDAutoCapture {
+public class VDCamera implements IVDAutoCapture{
     private Runnable camera;
     private Fragment fragment;
     private TextureView viewFinder;
@@ -77,7 +80,6 @@ public class VDCamera implements IVDAutoCapture {
                 // Build the image capture use case and attach button click listener
                 ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
                 captureButton.setOnClickListener(view -> {
-                    //TODO change functionality of capture - dont save it to disk
                     File file = new File(fragment.getActivity().getExternalMediaDirs()[0], System.currentTimeMillis() + ".jpg");
                     imageCapture.takePicture(file, new ImageCapture.OnImageSavedListener(){
 
@@ -97,17 +99,34 @@ public class VDCamera implements IVDAutoCapture {
                             String msg = "Photo capture succeeded: " + file.getAbsolutePath();
                             Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
                             Log.d(VDHelper.TAG, msg);
-
                             if(file.exists()){
                                 //listener.updateBitmap( BitmapFactory.decodeFile(file.getAbsolutePath()) );
                                 sharedViewModel.setBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
+                                Log.d(VDHelper.TAG, "Captured image deleted ->"+file.delete());
+                                int deviceRotation = fragment.getActivity().getWindowManager().getDefaultDisplay().getRotation();
+
 //                                previewImage.setImageBitmap(rotateBitmap(imageBitmap, 90));
                             }
                         }
                     });
                 });
+
+                // Setup image analysis pipeline that computes average pixel luminance
+                HandlerThread analyzerThread = new HandlerThread("LuminosityAnalysis");
+                analyzerThread.start();
+                ImageAnalysisConfig analyzerConfig =
+                        new ImageAnalysisConfig.Builder()
+                                .setCallbackHandler(new Handler(analyzerThread.getLooper()))
+                                // In our analysis, we care more about the latest image than
+                                // analyzing *every* image
+                                .setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
+                                .build();
+
+                ImageAnalysis analyzerUseCase = new ImageAnalysis(analyzerConfig);
+                analyzerUseCase.setAnalyzer(new VDImageAnalyzer());
                 CameraX.bindToLifecycle((LifecycleOwner) fragment,preview, imageCapture);
             }
+
         };
     }
 
@@ -168,4 +187,11 @@ public class VDCamera implements IVDAutoCapture {
         Log.d(VDHelper.TAG, "Autocapture runnable stopped");
     }
 
+
+    private class VDImageAnalyzer implements ImageAnalysis.Analyzer{
+        @Override
+        public void analyze(ImageProxy image, int rotationDegrees) {
+            int x = rotationDegrees;
+        }
+    }
 }

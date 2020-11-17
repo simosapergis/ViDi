@@ -6,6 +6,7 @@ import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
 import com.sapergis.vidi.implementation.VDLanguageIdentifier;
 import com.sapergis.vidi.implementation.VDTextRecognizer;
+import com.sapergis.vidi.implementation.VDTextTranslator;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -34,15 +35,13 @@ public class SharedViewModel extends ViewModel implements IVDTextOperations {
 
     @Override
     public void textRecognitionOn(Bitmap bitmap) {
-        //VDTextRecognizer vdTextRecognizer = new VDTextRecognizer(bitmap, this);
         Log.d(VDHelper.TAG,"Text recognition started...");
-        VDTextRecognizer.runCloudTextRecognition(bitmap,this);
-       // VDTextRecognizer.runDeviceTextRecognition(bitmap, this);
+        VDTextRecognizer.runDeviceTextRecognition(bitmap, this);
+        //VDTextRecognizer.runCloudTextRecognition(bitmap,this);
     }
 
     @Override
     public void onTextRecognized(String recognizedText) {
-        //Log.d(VDHelper.TAG, "Text recognized is ["+recognizedText+"]");
         VDLanguageIdentifier.identify(recognizedText, this);
     }
 
@@ -51,11 +50,13 @@ public class SharedViewModel extends ViewModel implements IVDTextOperations {
         Log.d(VDHelper.TAG, "Identified language code is ["+languageCode+"]");
         VDText vdText = new VDText();
         vdText.setRawText(recognizedText);
+        vdText.setIdentifiedLanguage(languageCode);
         setValidRecognizedText(vdText);
+        VDTextTranslator.initiateDeviceTranslation(vdText, this);
     }
 
     @Override
-    public void onTextTranslated() {
+    public void onTextTranslated(VDText vdText) {
 
     }
 }

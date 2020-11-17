@@ -44,7 +44,8 @@ public class CameraFragment extends Fragment {
         cameraButton = (Button) view.findViewById(R.id.cameraButton);
         vdCamera = new VDCamera(this, viewFinder, cameraButton);
         attachCameraTo(viewFinder);
-        vdCamera.setAutoCapture(IVDAutoCapture.DEFAULT_INTERVAL, 5);
+        //TODO Correct the below behavior when changing orientations
+        vdCamera.setAutoCapture(IVDAutoCapture.DEFAULT_INTERVAL, 2);
         sharedViewModel.getValidRecognizedText().observe(getViewLifecycleOwner(), vdText ->
                     vdCamera.releaseAutoCapture()
                 );
@@ -58,6 +59,7 @@ public class CameraFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        vdCamera.releaseAutoCapture();
         sharedViewModel.getValidRecognizedText().removeObservers(this);
     }
 }

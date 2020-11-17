@@ -5,6 +5,8 @@ public class VDText {
     private String translatedText;
     private String identifiedLanguage;
 
+    private String traslateTo;
+
     public String getRawText() {
         return rawText;
     }
@@ -29,4 +31,11 @@ public class VDText {
         this.identifiedLanguage = identifiedLanguage;
     }
 
+    public String getTraslateTo() {
+        return traslateTo;
+    }
+
+    public void setTraslateTo(String traslateTo) {
+        this.traslateTo = traslateTo;
+    }
 }
