@@ -51,12 +51,12 @@ public class SharedViewModel extends ViewModel implements IVDTextOperations {
         VDText vdText = new VDText();
         vdText.setRawText(recognizedText);
         vdText.setIdentifiedLanguage(languageCode);
-        setValidRecognizedText(vdText);
+
         VDTextTranslator.initiateDeviceTranslation(vdText, this);
     }
 
     @Override
     public void onTextTranslated(VDText vdText) {
-
+        setValidRecognizedText(vdText);
     }
 }

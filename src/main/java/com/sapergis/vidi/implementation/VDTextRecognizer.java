@@ -18,26 +18,14 @@ import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
-
-
 import java.util.Arrays;
-
 import androidx.annotation.NonNull;
 
 
 public class VDTextRecognizer {
-//    VDText vdText = new VDText();
-    //SharedViewModel sharedViewModel;
-//    VDTextOperations vdTextOperations;
-//    Bitmap bitmap;
-//    MutableLiveData<VDText>  mutableVDText;
-//    FirebaseVisionImage vdImage;
 
+    public VDTextRecognizer() {
 
-    public VDTextRecognizer(Bitmap bitmap, IVDTextOperations IVDTextOperations) {
-//        this.bitmap = bitmap;
-//        this.vdTextOperations = vdTextOperations;
-        //this.sharedViewModel = sharedViewModel;
     }
 
     public static void runCloudTextRecognition(Bitmap bitmap, IVDTextOperations IVDTextOperations) {

@@ -51,8 +51,11 @@ public class CapturedImageFragment extends Fragment {
 
                 );
         sharedViewModel.getValidRecognizedText().observe(getViewLifecycleOwner(), vdText ->
-                    vdTextToSpeech.speak(vdText.getRawText())
-                );
+                    //vdTextToSpeech.speak(vdText.getRawText())
+                vdTextToSpeech.test(vdText.getTranslatedText())
+        );
+
+
         return view;
     }
 

@@ -28,6 +28,7 @@ public class VDTextTranslator {
         DownloadConditions conditions = new DownloadConditions.Builder()
                 .requireWifi()
                 .build();
+        //TODO : Model download to be done on boot of the app, to avoid delay here
         Task<Void> modelDownload = vdTranslator.downloadModelIfNeeded(conditions);
         modelDownload.addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override

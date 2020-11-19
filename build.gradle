@@ -3,9 +3,15 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
+
 android {
     compileSdkVersion 29
     buildToolsVersion "30.0.2"
+
+    packagingOptions{
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/DEPENDENCIES'
+    }
 
     defaultConfig {
         applicationId "com.sapergis.vidi"
@@ -13,7 +19,6 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,6 +56,10 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.1.0')
     implementation 'com.google.firebase:firebase-ml-vision'
     implementation 'com.google.firebase:firebase-analytics'
+    //Google Cloud TTS
+    implementation 'com.google.cloud:google-cloud-texttospeech:1.2.3'
+    implementation 'io.grpc:grpc-android:1.33.1'
+    implementation 'io.grpc:grpc-okhttp:1.33.1'
     //CAMERAX
     def camerax_version = "1.0.0-alpha02"
     //noinspection GradleDependency

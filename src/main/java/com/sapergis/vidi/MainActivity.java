@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.widget.Toast;
 import com.sapergis.vidi.fragments.CameraFragment;
 import com.sapergis.vidi.fragments.CapturedImageFragment;
-import com.sapergis.vidi.implementation.VDTextToSpeech;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
