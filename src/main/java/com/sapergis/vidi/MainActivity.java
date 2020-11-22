@@ -4,9 +4,10 @@ import android.os.Bundle;
 import android.widget.Toast;
 import com.sapergis.vidi.fragments.CameraFragment;
 import com.sapergis.vidi.fragments.CapturedImageFragment;
-
+import com.sapergis.vidi.helper.GrantPermissions;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 
 public class MainActivity extends AppCompatActivity {
     private CameraFragment cameraFragment;
@@ -16,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //osberveInternetConnection();
         if( GrantPermissions.allPermissionsGranted(this) ){
             attachFragments();
         }else{

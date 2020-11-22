@@ -7,11 +7,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-
-import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.texttospeech.v1.AudioConfig;
 import com.google.cloud.texttospeech.v1.AudioEncoding;
@@ -22,19 +18,16 @@ import com.google.cloud.texttospeech.v1.TextToSpeechClient;
 import com.google.cloud.texttospeech.v1.TextToSpeechSettings;
 import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
 import com.google.protobuf.ByteString;
-import com.sapergis.vidi.GrantPermissions;
+import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDHelper;
-
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Locale;
 
 public class VDTextToSpeech {
-
+    private final String className = getClass().getSimpleName();
     private TextToSpeech textToSpeech;
     private final Context context;
 
@@ -44,11 +37,11 @@ public class VDTextToSpeech {
     }
 
     private void initialize (){
-        Log.d(VDHelper.TAG, "TextToSpeech on Device ->> Initiating...");
+        VDHelper.debugLog(className, context.getString(R.string.tts_onDevice_initiating));
         textToSpeech = new TextToSpeech(context, status -> {
             if ( status == TextToSpeech.SUCCESS){
                 textToSpeech.setLanguage(Locale.ENGLISH);
-                Log.d(VDHelper.TAG, "TextToSpeech on Device ->> Initiated :: Language ->> "+ Locale.ENGLISH);
+                VDHelper.debugLog(className, context.getString(R.string.tts_onDevice_initiated)+ Locale.ENGLISH);
             }
         });
     }
@@ -59,14 +52,17 @@ public class VDTextToSpeech {
 
     public void shutDown (){
         textToSpeech.shutdown();
-        Log.d("TextToSpeech", "->> was ShutDown");
+        VDHelper.debugLog(className, "->> was ShutDown");
     }
 
-    public  void test(String text){
-
+    /**
+    Executing Google Text-To-Speech API, when we need the text to be spoken on languages that
+     android TTS does not support e.g. Greek
+     */
+    public static void runTextToSpeechOnCloud (String text, Context context){
         try {
             TextToSpeechSettings textToSpeechSettings = null;
-            Log.d(VDHelper.TAG, "Initiating TTS.. ");
+            VDHelper.debugLog("VDTextToSpeech", context.getString(R.string.initiating_google_cloud_tts));
             textToSpeechSettings = TextToSpeechSettings.newBuilder().setCredentialsProvider(
                     FixedCredentialsProvider.create(ServiceAccountCredentials.fromStream(
                             //TODO : SET up google cloud credentials out of device storage
@@ -82,25 +78,19 @@ public class VDTextToSpeech {
             AudioConfig audioConfig = AudioConfig.newBuilder()
                     .setAudioEncoding(AudioEncoding.MP3)
                     .build();
-            Log.d(VDHelper.TAG, "Sending TTS request to Google Cloud.. ");
+            VDHelper.debugLog("VDTextToSpeech", context.getString(R.string.send_google_cloud_tts_req));
             SynthesizeSpeechResponse response = textToSpeechClient
                     .synthesizeSpeech(input, voice, audioConfig);
-            Log.d(VDHelper.TAG, "TTS response received from Google Cloud");
+            VDHelper.debugLog("VDTextToSpeech", context.getString(R.string.get_google_cloud_tts_res));
             ByteString audioContents = response.getAudioContent();
             //TODO : DO save the mp3 in a more generic way
             File mp3File = new File("/storage/emulated/0/DCIM/TTS/tts.mp3");
-            try(OutputStream outputStream = new FileOutputStream(mp3File)){
-                outputStream.write(audioContents.toByteArray());
-                MediaPlayer mediaPlayer = MediaPlayer.create(context, Uri.fromFile(mp3File));
-                mediaPlayer.start();
-//                FileDescriptor fd = context.getContentResolver().openFileDescriptor()
-//
-//                mediaPlayer.setDataSource();
-            }
-
-        }catch(Exception ex){
+            OutputStream outputStream = new FileOutputStream(mp3File);
+            outputStream.write(audioContents.toByteArray());
+            MediaPlayer mediaPlayer = MediaPlayer.create(context, Uri.fromFile(mp3File));
+            mediaPlayer.start();
+        } catch(Exception ex){
             ex.printStackTrace();
-
         }
     }
 }

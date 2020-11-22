@@ -1,8 +1,7 @@
-package com.sapergis.vidi;
+package com.sapergis.vidi.helper;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
 
 import androidx.core.app.ActivityCompat;

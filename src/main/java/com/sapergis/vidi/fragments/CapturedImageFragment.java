@@ -1,12 +1,9 @@
 package com.sapergis.vidi.fragments;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +13,6 @@ import com.sapergis.vidi.helper.VDBitmap;
 import com.sapergis.vidi.implementation.VDTextToSpeech;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
-import java.io.InputStream;
 
 public class CapturedImageFragment extends Fragment {
     private SharedViewModel sharedViewModel;
@@ -38,7 +34,10 @@ public class CapturedImageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        vdTextToSpeech = new VDTextToSpeech(this.getContext());
+        //TODO Android internal tts engine to be used for
+        sharedViewModel.isConnected().observe(this, isConnected -> {
+            manageAndroidTTS(isConnected);
+        });
     }
 
     @Override
@@ -48,14 +47,11 @@ public class CapturedImageFragment extends Fragment {
         previewImage = (ImageView) view.findViewById(R.id.previewImage);
         sharedViewModel.getCaptured().observe(getViewLifecycleOwner(), bitmap ->
                     previewImage.setImageBitmap(VDBitmap.rotateBitmap(bitmap,90))
-
                 );
         sharedViewModel.getValidRecognizedText().observe(getViewLifecycleOwner(), vdText ->
-                    //vdTextToSpeech.speak(vdText.getRawText())
-                vdTextToSpeech.test(vdText.getTranslatedText())
+                //TODO Check if the device is connected to  internet
+                VDTextToSpeech.runTextToSpeechOnCloud( vdText.getTranslatedText(), this.getContext() )
         );
-
-
         return view;
     }
 
@@ -66,4 +62,14 @@ public class CapturedImageFragment extends Fragment {
         sharedViewModel.getValidRecognizedText().removeObservers(this);
         vdTextToSpeech.shutDown();
     }
+
+    private void manageAndroidTTS(Boolean isConnected) {
+        if(isConnected){
+            vdTextToSpeech = new VDTextToSpeech(this.getContext());
+        }
+        else if( vdTextToSpeech != null){
+            vdTextToSpeech.shutDown();
+        }
+    }
+
 }

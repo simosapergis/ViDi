@@ -2,17 +2,10 @@ package com.sapergis.vidi.viewmodels;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.widget.ImageView;
 
-import com.google.mlkit.vision.common.InputImage;
-import com.sapergis.vidi.GrantPermissions;
 import com.sapergis.vidi.MainActivity;
 
-import junit.framework.TestCase;
-
 import org.junit.Before;
-import org.junit.Assert;
 import org.junit.Test;
 import java.io.File;
 import static org.junit.Assert.*;

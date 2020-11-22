@@ -7,6 +7,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.nl.languageid.LanguageIdentification;
 import com.google.mlkit.nl.languageid.LanguageIdentifier;
+import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
 
@@ -25,7 +26,7 @@ public class VDLanguageIdentifier {
                                 if ( !languageCode.equals("und") ) {
                                     IVDTextOperations.onLanguageIdentified(languageCode, text);
                                 } else {
-                                    Log.d(VDHelper.TAG, "Can't identify language.");
+                                    VDHelper.debugLog(getClass().getSimpleName(), "Can't identify language.");
                                 }
                             }
                         });

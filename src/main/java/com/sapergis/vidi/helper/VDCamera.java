@@ -12,6 +12,8 @@ import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.sapergis.vidi.R;
 import com.sapergis.vidi.interfaces.IVDAutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 import java.io.File;
@@ -29,14 +31,15 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
 public class VDCamera implements IVDAutoCapture{
-    private Runnable camera;
-    private Fragment fragment;
-    private TextureView viewFinder;
-    private Button captureButton;
-    private SharedViewModel sharedViewModel;
+    private final String className = getClass().getSimpleName();
+    private final Fragment fragment;
+    private final TextureView viewFinder;
+    private final Button captureButton;
+    private final SharedViewModel sharedViewModel;
+    private final Handler captureHandler = new Handler();
     private Runnable capture;
-    private Handler captureHandler = new Handler();
-    private int count = 1;
+    private Runnable camera;
+    private int count = 0;
 
     public VDCamera (Fragment fragment, TextureView textureView, Button captureButton){
         this.fragment = fragment;
@@ -88,7 +91,7 @@ public class VDCamera implements IVDAutoCapture{
                                             @Nullable Throwable exc) {
                             String msg = "Photo capture failed: " + message;
                             Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            Log.e(VDHelper.TAG, msg);
+                            VDHelper.debugLog(className, msg);
                             if (exc != null) {
                                 exc.printStackTrace();
                             }
@@ -98,12 +101,11 @@ public class VDCamera implements IVDAutoCapture{
                         public void onImageSaved(File file) {
                             String msg = "Photo capture succeeded: " + file.getAbsolutePath();
                             Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            Log.d(VDHelper.TAG, msg);
+                            VDHelper.debugLog(className, msg);
                             if(file.exists()){
                                 //listener.updateBitmap( BitmapFactory.decodeFile(file.getAbsolutePath()) );
                                 sharedViewModel.setBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-                                Log.d(VDHelper.TAG, "Captured image deleted ->"+file.delete());
-                                int deviceRotation = fragment.getActivity().getWindowManager().getDefaultDisplay().getRotation();
+                                VDHelper.debugLog(className, fragment.getString(R.string.image_deleted) + file.delete());
 
 //                                previewImage.setImageBitmap(rotateBitmap(imageBitmap, 90));
                             }
@@ -167,12 +169,13 @@ public class VDCamera implements IVDAutoCapture{
 
     @Override
     public void setAutoCapture(int interval, int captureRepetitions) {
+        VDHelper.debugLog(className, fragment.getString(R.string.starting_autocapture));
         capture = new Runnable() {
             @Override
             public void run() {
                 captureButton.performClick();
-                Log.d(VDHelper.TAG, "Capture no "+count);
-                if(count++ < captureRepetitions){
+                if(count++ < captureRepetitions && sharedViewModel.getConnected() ){
+                    VDHelper.debugLog(className, fragment.getString(R.string.capture_no)+ count);
                     captureHandler.postDelayed(this, interval);
                 }
             }
@@ -183,8 +186,8 @@ public class VDCamera implements IVDAutoCapture{
     @Override
     public void releaseAutoCapture() {
         captureHandler.removeCallbacks(capture);
-        count = 1;
-        Log.d(VDHelper.TAG, "Autocapture runnable stopped");
+        count = 0;
+        VDHelper.debugLog(className, fragment.getString(R.string.autocapture_stopped));
     }
 
 

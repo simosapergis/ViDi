@@ -39,9 +39,7 @@ public class VDTextRecognizer {
                 new OnSuccessListener<FirebaseVisionText>() {
                     @Override
                     public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                        //String refinedText =  vdText.refineText(firebaseVisionText.getText());
-                        //vdText.setRawText(refinedText);
-                        Log.d(VDHelper.TAG, "TEXT FOUND [CLOUD]=> " + firebaseVisionText.getText());
+                        VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [CLOUD]=> " + firebaseVisionText.getText());
                         IVDTextOperations.onTextRecognized(firebaseVisionText.getText());
                     }
                 });
@@ -63,7 +61,7 @@ public class VDTextRecognizer {
                             @Override
                             public void onSuccess(Text visionText) {
                                 // Task completed successfully
-                                Log.d(VDHelper.TAG, "TEXT FOUND [DEVICE]=>" +visionText.getText());
+                                VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [DEVICE]=>" +visionText.getText());
                                 IVDTextOperations.onTextRecognized(visionText.getText());
                             }
                         })
