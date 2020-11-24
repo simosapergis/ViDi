@@ -6,8 +6,10 @@ import com.sapergis.vidi.helper.VDText;
 
 public interface IVDTextOperations {
 
-    public void textRecognitionOn(Bitmap bitmap);
-    public void onTextRecognized(String recognizedText);
-    public void onLanguageIdentified(String languageCode, String recognizedText);
-    public void onTextTranslated(VDText vdText);
+    void textRecognitionOn(Bitmap bitmap);
+    void onTextRecognized(String recognizedText);
+    void onLanguageIdentified(String languageCode, String recognizedText);
+    void onTextTranslated(VDText vdText);
+    void onTextToSpeechFinished();
+    void onTextOperationTerminated();
 }

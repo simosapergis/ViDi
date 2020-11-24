@@ -4,7 +4,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
@@ -59,17 +58,6 @@ public class VDCamera implements IVDAutoCapture{
                         .setTargetResolution(new Size(400, 580))
                         .build();
 
-                Preview preview = new Preview(previewConfig);
-                preview.setOnPreviewOutputUpdateListener(
-                        previewOutput -> {
-                            // To update the SurfaceTexture, we have to remove it and re-add it
-                            ViewGroup parent = (ViewGroup) viewFinder.getParent();
-                            parent.removeView(viewFinder);
-                            parent.addView(viewFinder, 0);
-
-                            viewFinder.setSurfaceTexture(previewOutput.getSurfaceTexture());
-                            updateTransform();
-                        });
                 // Create configuration object for the image capture use case
                 ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder()
                         .setTargetAspectRatio(new Rational(400, 580))
@@ -78,6 +66,18 @@ public class VDCamera implements IVDAutoCapture{
                         // resolution based on aspect ratio and requested mode
                         .setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                         .build();
+
+                Preview preview = new Preview(previewConfig);
+                preview.setOnPreviewOutputUpdateListener(
+                        previewOutput -> {
+                            // To update the SurfaceTexture, we have to remove it and re-add it
+                            ViewGroup parent = (ViewGroup) viewFinder.getParent();
+                            parent.removeView(viewFinder);
+                            parent.addView(viewFinder, 0);
+                            viewFinder.setSurfaceTexture(previewOutput.getSurfaceTexture());
+                            updateTransform();
+                        });
+
 
 
                 // Build the image capture use case and attach button click listener
@@ -132,6 +132,14 @@ public class VDCamera implements IVDAutoCapture{
         };
     }
 
+    public synchronized void cameraWait() throws InterruptedException {
+        camera.wait();
+    }
+
+    public synchronized void cameraNotify(){
+        camera.notify();
+    }
+
     private void updateTransform() {
         android.graphics.Matrix matrix = new Matrix();
 
@@ -174,7 +182,7 @@ public class VDCamera implements IVDAutoCapture{
             @Override
             public void run() {
                 captureButton.performClick();
-                if(count++ < captureRepetitions && sharedViewModel.getConnected() ){
+                if(count++ < captureRepetitions ){
                     VDHelper.debugLog(className, fragment.getString(R.string.capture_no)+ count);
                     captureHandler.postDelayed(this, interval);
                 }
@@ -186,6 +194,7 @@ public class VDCamera implements IVDAutoCapture{
     @Override
     public void releaseAutoCapture() {
         captureHandler.removeCallbacks(capture);
+        //captureHandler = null;
         count = 0;
         VDHelper.debugLog(className, fragment.getString(R.string.autocapture_stopped));
     }

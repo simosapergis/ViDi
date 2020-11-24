@@ -36,20 +36,12 @@ public class VDTextRecognizer {
         FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance().getCloudTextRecognizer(options);
         Task<FirebaseVisionText> result = detector.processImage(firebaseVisionImage);
         result.addOnSuccessListener(
-                new OnSuccessListener<FirebaseVisionText>() {
-                    @Override
-                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                        VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [CLOUD]=> " + firebaseVisionText.getText());
-                        IVDTextOperations.onTextRecognized(firebaseVisionText.getText());
-                    }
+                firebaseVisionText -> {
+                    VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [CLOUD]=> " + firebaseVisionText.getText());
+                    IVDTextOperations.onTextRecognized(firebaseVisionText.getText());
                 });
         result.addOnFailureListener(
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                e -> e.printStackTrace()
         );
     }
 
@@ -63,14 +55,15 @@ public class VDTextRecognizer {
                                 // Task completed successfully
                                 VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [DEVICE]=>" +visionText.getText());
                                 IVDTextOperations.onTextRecognized(visionText.getText());
+                                recognizer.close();
                             }
                         })
                         .addOnFailureListener(
                                 new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        // Task failed with an exception
-                                        // ...
+                                        Log.e("TextRecognitionFailure", e.toString());
+                                        recognizer.close();
                                     }
                                 });
 

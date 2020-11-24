@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 
 public class VDLanguageIdentifier {
 
-    public static void identify(String text, IVDTextOperations IVDTextOperations){
+    public static void identify(String text, IVDTextOperations iVDTextOperations){
         LanguageIdentifier languageIdentifier = LanguageIdentification.getClient();
         Task<String> result = languageIdentifier.identifyLanguage(text);
         result.addOnSuccessListener(
@@ -24,10 +24,12 @@ public class VDLanguageIdentifier {
                             @Override
                             public void onSuccess(@Nullable String languageCode) {
                                 if ( !languageCode.equals("und") ) {
-                                    IVDTextOperations.onLanguageIdentified(languageCode, text);
+                                    iVDTextOperations.onLanguageIdentified(languageCode, text);
                                 } else {
                                     VDHelper.debugLog(getClass().getSimpleName(), "Can't identify language.");
+                                    iVDTextOperations.onTextOperationTerminated();
                                 }
+                                languageIdentifier.close();
                             }
                         });
         result.addOnFailureListener(
@@ -36,6 +38,7 @@ public class VDLanguageIdentifier {
                             public void onFailure(@NonNull Exception e) {
                                 // Model couldn’t be loaded or other internal error.
                                 // ...
+                                languageIdentifier.close();
                             }
                         });
     }

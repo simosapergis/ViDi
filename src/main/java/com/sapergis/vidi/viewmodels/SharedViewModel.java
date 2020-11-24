@@ -12,8 +12,10 @@ import android.widget.Toast;
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
+import com.sapergis.vidi.implementation.VDCloudTTS;
 import com.sapergis.vidi.implementation.VDLanguageIdentifier;
 import com.sapergis.vidi.implementation.VDTextRecognizer;
+import com.sapergis.vidi.implementation.VDDeviceTTS;
 import com.sapergis.vidi.implementation.VDTextTranslator;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
 import java.util.Objects;
@@ -27,6 +29,9 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     private final MutableLiveData<Bitmap> captured = new MutableLiveData<Bitmap>();
     private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<VDText>();
     private final MutableLiveData<Boolean> hasInternetConnection = new MutableLiveData<Boolean>();
+    private final MutableLiveData<Boolean> cloudTTSFinished = new MutableLiveData<Boolean>();
+    private final VDCloudTTS vdCloudTTS;
+    private final VDDeviceTTS vdDeviceTTS;
     private final Application application;
     private ConnectivityManager cm;
     private ConnectivityManager.NetworkCallback networkCallback;
@@ -36,7 +41,10 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     public SharedViewModel(@NonNull Application application) {
         super(application);
         this.application = application;
+        vdCloudTTS = new VDCloudTTS(application, this);
+        vdDeviceTTS = new VDDeviceTTS(application);
         initConnectivityManager();
+        registerCMCallback();
     }
 
     public void setBitmap (Bitmap bitmap){
@@ -52,6 +60,14 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         hasInternetConnection.setValue(isConnected);
     }
 
+    public void setCloudTTSFinished(boolean isFinished){
+        cloudTTSFinished.setValue(isFinished);
+    }
+
+    public MutableLiveData<Boolean> isCloudTTSFinished() {
+        return cloudTTSFinished;
+    }
+
     public LiveData<Boolean> isConnected (){
         return hasInternetConnection;
     }
@@ -63,7 +79,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     public LiveData<VDText> getValidRecognizedText(){
         return validRecognizedText;
     }
-
 
     public void setConnected(boolean connected) {
         this.connected = connected;
@@ -91,12 +106,30 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         VDText vdText = new VDText();
         vdText.setRawText(recognizedText);
         vdText.setIdentifiedLanguage(languageCode);
+        setValidRecognizedText(vdText);
         VDTextTranslator.initiateDeviceTranslation(vdText, this);
     }
 
     @Override
     public void onTextTranslated(VDText vdText) {
-        setValidRecognizedText(vdText);
+        if(connected) {
+            vdCloudTTS.runTextToSpeechOnCloud(vdText.getTranslatedText());
+        }else {
+            //Sends raw text since Greek language is not supported on device TTS
+            //TODO Make it parameterizable
+            vdDeviceTTS.speak(vdText.getRawText(), this);
+        }
+    }
+
+    @Override
+    public void onTextToSpeechFinished() {
+         cloudTTSFinished.setValue(true);
+    }
+
+    @Override
+    public void onTextOperationTerminated() {
+        VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated));
+        cloudTTSFinished.setValue(true);
     }
 
     private void initConnectivityManager(){

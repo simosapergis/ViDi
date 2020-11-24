@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 public class MainActivity extends AppCompatActivity {
-    private CameraFragment cameraFragment;
-    private CapturedImageFragment capturedImageFragment;
+//    private CameraFragment cameraFragment;
+//    private CapturedImageFragment capturedImageFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void attachFragments(){
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.cameraFragment, cameraFragment.newInstance(null, null))
-                .add(R.id.captureFragment, capturedImageFragment.newInstance(null,null))
+                .replace(R.id.cameraFragment, CameraFragment.newInstance(null, null))
+                .replace(R.id.captureFragment, CapturedImageFragment.newInstance(null,null))
                 .commit();
     }
 

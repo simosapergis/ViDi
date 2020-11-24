@@ -52,14 +52,17 @@ public class VDTextTranslator {
             @Override
             public void onSuccess(String s) {
                 vdText.setTranslatedText(translation.getResult());
+                VDHelper.debugLog(getClass().getSimpleName(), "Translating to => ["+vdText.getTraslateTo()+"]");
                 VDHelper.debugLog(getClass().getSimpleName(), "Translated text is => ["+translation.getResult()+"]");
                 ivdTextOperations.onTextTranslated(vdText);
+                vdTranslator.close();
             }
         });
         translation.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 VDHelper.debugLog(getClass().getSimpleName(), "Translation failed...");
+                vdTranslator.close();
             }
         });
 
