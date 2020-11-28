@@ -34,10 +34,15 @@ public class VDDeviceTTS {
     }
 
     public void speak (String text, IVDTextOperations ivdTextOperations){
-        VDHelper.debugLog(className, context.getString(R.string.device_tts_speaking));
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null,null);
-        VDHelper.debugLog(className, context.getString(R.string.device_tts_finished));
-        ivdTextOperations.onTextToSpeechFinished();
+        try {
+            VDHelper.debugLog(className, context.getString(R.string.device_tts_speaking));
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null,null);
+            VDHelper.debugLog(className, context.getString(R.string.device_tts_finished));
+            ivdTextOperations.onTextToSpeechFinished();
+        }catch (Exception e){
+            ivdTextOperations.onOperationTerminated(e.getMessage());
+        }
+
     }
 
     public void shutDown (){

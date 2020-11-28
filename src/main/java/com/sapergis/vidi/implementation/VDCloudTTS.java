@@ -84,8 +84,9 @@ public class VDCloudTTS {
                     VDHelper.debugLog(getClass().getSimpleName(), context.getString(R.string.cloud_tts_finished));
                     }
             );
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            ivdTextOperations.onOperationTerminated(e.getMessage());
         }
     }
+
 }

@@ -69,7 +69,7 @@ public class VDCloudTTSTest extends TestCase {
             }
 
             @Override
-            public void onTextOperationTerminated() {
+            public void onOperationTerminated() {
 
             }
         };

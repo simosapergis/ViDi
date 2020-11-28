@@ -1,6 +1,5 @@
 package com.sapergis.vidi.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +19,7 @@ import com.sapergis.vidi.interfaces.IVDAutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
 public class CameraFragment extends Fragment {
+    private static final String HAS_AUTOCAPTURE_CALLBACKS = "hasAutoCaptureCallbacks";
     private SharedViewModel sharedViewModel;
     private VDCamera vdCamera;
     private Observer<VDText> vdTextObserver = vdText -> manageCamera(IVDAutoCapture.STOP);
@@ -43,13 +43,13 @@ public class CameraFragment extends Fragment {
 //                manageCamera(isConnected);
 //            //}
 //        });
-        sharedViewModel.getValidRecognizedText().removeObservers(this);
-        sharedViewModel.getValidRecognizedText().observe(this, vdTextObserver);
-        sharedViewModel.isCloudTTSFinished().observe(this, aBoolean -> {
+//        sharedViewModel.getValidRecognizedText().removeObservers(this);
+//        sharedViewModel.getValidRecognizedText().observe(this, vdTextObserver);
+        sharedViewModel.isTTSOperationFinished().observe(this, aBoolean -> {
 //               if(getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED){
                 manageCamera(IVDAutoCapture.START);
-//                }
-        });
+                });
+//        });
 
     }
 
@@ -70,7 +70,14 @@ public class CameraFragment extends Fragment {
         VDHelper.debugLog(getClass().getSimpleName(), getClass().getSimpleName()+" View Created");
         //TODO Correct the below behavior when changing orientations
         //TODO fix capture repetitions
-        manageCamera(IVDAutoCapture.START);
+        boolean hasCallBacks = false;
+        if(savedInstanceState != null){
+            hasCallBacks = savedInstanceState.getBoolean(HAS_AUTOCAPTURE_CALLBACKS);
+        }
+        if(!hasCallBacks){
+            manageCamera(IVDAutoCapture.START);
+        }
+
     }
 
     private void manageCamera(String action) {
@@ -79,7 +86,7 @@ public class CameraFragment extends Fragment {
             //TODO fix capture repetitions
             vdCamera.setAutoCapture(IVDAutoCapture.DEFAULT_INTERVAL, 10);
         }else if ( action.equals(IVDAutoCapture.STOP) ){
-            vdCamera.releaseAutoCapture();
+        //    vdCamera.releaseAutoCapture();
         }
     }
 
@@ -88,30 +95,23 @@ public class CameraFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        //setRetainInstance(true);
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        //TODO Check if should uncomment
-        //sharedViewModel.registerCMCallback();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        //TODO Check if should uncomment
-        //sharedViewModel.unRegisterCMCallback();
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(HAS_AUTOCAPTURE_CALLBACKS, vdCamera.hasAutoCaptureCallbacks());
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         manageCamera(IVDAutoCapture.STOP);
-        sharedViewModel.getValidRecognizedText().removeObservers(this);
+        sharedViewModel.isTTSOperationFinished().removeObservers(this);
+        vdCamera.removeAutoCaptureCallbacks();
+//        sharedViewModel.getValidRecognizedText().removeObservers(this);
     }
 
     @Override

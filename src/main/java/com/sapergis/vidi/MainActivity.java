@@ -10,14 +10,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 public class MainActivity extends AppCompatActivity {
-//    private CameraFragment cameraFragment;
-//    private CapturedImageFragment capturedImageFragment;
+    private static final String CAMERA_FRAGMENT = "cameraFragment";
+    private CameraFragment cameraFragment = CameraFragment.newInstance(null,null);
+    private CapturedImageFragment capturedImageFragment = CapturedImageFragment.newInstance(null,null);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //osberveInternetConnection();
+        if (savedInstanceState != null){
+            cameraFragment = (CameraFragment) getSupportFragmentManager().getFragment(savedInstanceState, CAMERA_FRAGMENT);
+        }
         if( GrantPermissions.allPermissionsGranted(this) ){
             attachFragments();
         }else{
@@ -42,13 +45,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void attachFragments(){
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.cameraFragment, CameraFragment.newInstance(null, null))
-                .replace(R.id.captureFragment, CapturedImageFragment.newInstance(null,null))
+                .replace(R.id.cameraFragment, cameraFragment)
+                .replace(R.id.captureFragment, capturedImageFragment)
                 .commit();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        getSupportFragmentManager().putFragment(outState, CAMERA_FRAGMENT, cameraFragment);
     }
 }

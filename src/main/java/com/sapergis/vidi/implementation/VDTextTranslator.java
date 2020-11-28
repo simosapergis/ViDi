@@ -9,11 +9,10 @@ import com.google.mlkit.nl.translate.TranslateLanguage;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
-import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
-import androidx.annotation.NonNull;
+
 
 
 public class VDTextTranslator {
@@ -31,17 +30,11 @@ public class VDTextTranslator {
         //TODO : Model download to be done on boot of the app, to avoid delay here
         //TODO + Check for internet connection
         Task<Void> modelDownload = vdTranslator.downloadModelIfNeeded(conditions);
-        modelDownload.addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                translate(vdText, vdTranslator, ivdTextOperations);
-            }
-        });
-        modelDownload.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
+        modelDownload.addOnSuccessListener(aVoid ->
+                translate(vdText, vdTranslator, ivdTextOperations));
+        modelDownload.addOnFailureListener(e -> {
+            ivdTextOperations.onOperationTerminated(e.getMessage());
+            vdTranslator.close();
         });
     }
 
@@ -58,12 +51,10 @@ public class VDTextTranslator {
                 vdTranslator.close();
             }
         });
-        translation.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                VDHelper.debugLog(getClass().getSimpleName(), "Translation failed...");
+        translation.addOnFailureListener(e-> {
+                VDHelper.debugLog("VDTextTranslator", "Translation failed...");
+                ivdTextOperations.onOperationTerminated(e.getMessage());
                 vdTranslator.close();
-            }
         });
 
     }

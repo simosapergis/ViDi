@@ -1,9 +1,12 @@
 package com.sapergis.vidi.helper;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.MessageQueue;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
@@ -36,9 +39,11 @@ public class VDCamera implements IVDAutoCapture{
     private final Button captureButton;
     private final SharedViewModel sharedViewModel;
     private final Handler captureHandler = new Handler();
-    private Runnable capture;
+    private Runnable capture = null;
     private Runnable camera;
+    private float rotationDegrees;
     private int count = 0;
+    private Handler handler = new Handler(Looper.getMainLooper());;
 
     public VDCamera (Fragment fragment, TextureView textureView, Button captureButton){
         this.fragment = fragment;
@@ -83,34 +88,43 @@ public class VDCamera implements IVDAutoCapture{
                 // Build the image capture use case and attach button click listener
                 ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
                 captureButton.setOnClickListener(view -> {
-                    File file = new File(fragment.getActivity().getExternalMediaDirs()[0], System.currentTimeMillis() + ".jpg");
-                    imageCapture.takePicture(file, new ImageCapture.OnImageSavedListener(){
+                    try{
+                        File file = new File(fragment.getActivity().getExternalMediaDirs()[0], System.currentTimeMillis() + ".jpg");
+                        imageCapture.takePicture(file, new ImageCapture.OnImageSavedListener(){
 
-                        @Override
-                        public void onError(ImageCapture.UseCaseError error, String message,
-                                            @Nullable Throwable exc) {
-                            String msg = "Photo capture failed: " + message;
-                            Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            VDHelper.debugLog(className, msg);
-                            if (exc != null) {
-                                exc.printStackTrace();
+                            @Override
+                            public void onError(ImageCapture.UseCaseError error, String message,
+                                                @Nullable Throwable exc) {
+                                String msg = "Photo capture failed: " + message;
+                                Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
+                                VDHelper.debugLog(className, msg);
+                                if (exc != null) {
+                                    exc.printStackTrace();
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onImageSaved(File file) {
-                            String msg = "Photo capture succeeded: " + file.getAbsolutePath();
-                            Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
-                            VDHelper.debugLog(className, msg);
-                            if(file.exists()){
-                                //listener.updateBitmap( BitmapFactory.decodeFile(file.getAbsolutePath()) );
-                                sharedViewModel.setBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-                                VDHelper.debugLog(className, fragment.getString(R.string.image_deleted) + file.delete());
+                            @Override
+                            public void onImageSaved(File file) {
+                                String msg = "Photo capture succeeded: " + file.getAbsolutePath();
+                                Toast.makeText(fragment.getContext(), msg, Toast.LENGTH_SHORT).show();
+                                VDHelper.debugLog(className, msg);
+                                if(file.exists()){
+                                    //listener.updateBitmap( BitmapFactory.decodeFile(file.getAbsolutePath()) );
+                                    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                                    VDBitmap vdBitmap = new VDBitmap();
+                                    vdBitmap.setImage(bitmap);
+                                    vdBitmap.setRotationDegrees(rotationDegrees);
+                                    sharedViewModel.setBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
+                                    VDHelper.debugLog(className, fragment.getString(R.string.image_deleted) + file.delete());
 
-//                                previewImage.setImageBitmap(rotateBitmap(imageBitmap, 90));
+                                    //                                previewImage.setImageBitmap(rotateBitmap(imageBitmap, 90));
+                                }
                             }
-                        }
-                    });
+                        });
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
+                    }
+
                 });
 
                 // Setup image analysis pipeline that computes average pixel luminance
@@ -147,7 +161,6 @@ public class VDCamera implements IVDAutoCapture{
         float centerY = viewFinder.getHeight() / 2f;
 
         // Correct preview output to account for display rotation
-        float rotationDegrees;
         switch (viewFinder.getDisplay().getRotation()) {
             case Surface.ROTATION_0:
                 rotationDegrees = 0f;
@@ -177,20 +190,35 @@ public class VDCamera implements IVDAutoCapture{
 
     @Override
     public void setAutoCapture(int interval, int captureRepetitions) {
-        VDHelper.debugLog(className, fragment.getString(R.string.starting_autocapture));
-        capture = new Runnable() {
-            @Override
-            public void run() {
-                captureButton.performClick();
-                if(count++ < captureRepetitions ){
-                    VDHelper.debugLog(className, fragment.getString(R.string.capture_no)+ count);
-                    captureHandler.postDelayed(this, interval);
-                }
-            }
-        };
-        captureHandler.post(capture);
+//        VDHelper.debugLog(className, fragment.getString(R.string.starting_autocapture));
+//        capture = new Runnable() {
+////            @Override
+////            public void run() {
+////                captureButton.performClick();
+////                if(count++ < captureRepetitions ){
+////                    VDHelper.debugLog(className, fragment.getString(R.string.capture_no)+ count);
+////                    captureHandler.postDelayed(this, interval);
+////                }
+////            }
+////        };
+////        captureHandler.post(capture);
+//        Looper looper = Looper.getMainLooper();
+//        MessageQueue mq =  looper.getQueue();
+//        handler = new Handler(Looper.myLooper());
+//        handler.postDelayed(captureButton::performClick, 5000);
+//        VDHelper.debugLog(getClass().getSimpleName(), "Handler instantiated..");
+        capture = captureButton::performClick;
+        handler.postDelayed(capture, 5000);
+        VDHelper.debugLog(getClass().getSimpleName(), "Handler instantiated..");
     }
 
+    public boolean hasAutoCaptureCallbacks (){
+        return capture != null && handler.hasCallbacks(capture);
+    }
+
+    public void removeAutoCaptureCallbacks(){
+        handler.removeCallbacksAndMessages(null);
+    }
     @Override
     public void releaseAutoCapture() {
         captureHandler.removeCallbacks(capture);

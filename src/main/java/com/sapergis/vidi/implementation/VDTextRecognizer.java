@@ -45,7 +45,7 @@ public class VDTextRecognizer {
         );
     }
 
-    public static void runDeviceTextRecognition(Bitmap bitmap, IVDTextOperations IVDTextOperations){
+    public static void runDeviceTextRecognition(Bitmap bitmap, IVDTextOperations iVDTextOperations){
         InputImage inputImage = InputImage.fromBitmap(bitmap, 90);
         TextRecognizer recognizer = TextRecognition.getClient();
         Task<Text> result = recognizer.process(inputImage);
@@ -54,7 +54,7 @@ public class VDTextRecognizer {
                             public void onSuccess(Text visionText) {
                                 // Task completed successfully
                                 VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [DEVICE]=>" +visionText.getText());
-                                IVDTextOperations.onTextRecognized(visionText.getText());
+                                iVDTextOperations.onTextRecognized(visionText.getText());
                                 recognizer.close();
                             }
                         })
@@ -63,6 +63,7 @@ public class VDTextRecognizer {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Log.e("TextRecognitionFailure", e.toString());
+                                        iVDTextOperations.onOperationTerminated(e.getMessage());
                                         recognizer.close();
                                     }
                                 });

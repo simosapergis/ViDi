@@ -8,7 +8,6 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.widget.Toast;
-
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
@@ -29,7 +28,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     private final MutableLiveData<Bitmap> captured = new MutableLiveData<Bitmap>();
     private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<VDText>();
     private final MutableLiveData<Boolean> hasInternetConnection = new MutableLiveData<Boolean>();
-    private final MutableLiveData<Boolean> cloudTTSFinished = new MutableLiveData<Boolean>();
+    private final MutableLiveData<Boolean> operationFinished = new MutableLiveData<Boolean>();
     private final VDCloudTTS vdCloudTTS;
     private final VDDeviceTTS vdDeviceTTS;
     private final Application application;
@@ -60,12 +59,12 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         hasInternetConnection.setValue(isConnected);
     }
 
-    public void setCloudTTSFinished(boolean isFinished){
-        cloudTTSFinished.setValue(isFinished);
+    public void setOperationFinished(boolean isFinished){
+        operationFinished.setValue(isFinished);
     }
 
-    public MutableLiveData<Boolean> isCloudTTSFinished() {
-        return cloudTTSFinished;
+    public MutableLiveData<Boolean> isTTSOperationFinished() {
+        return operationFinished;
     }
 
     public LiveData<Boolean> isConnected (){
@@ -123,13 +122,13 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
 
     @Override
     public void onTextToSpeechFinished() {
-         cloudTTSFinished.setValue(true);
+         setOperationFinished(true);
     }
 
     @Override
-    public void onTextOperationTerminated() {
-        VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated));
-        cloudTTSFinished.setValue(true);
+    public void onOperationTerminated(String message) {
+        VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated) +" "+message);
+        setOperationFinished(true);
     }
 
     private void initConnectivityManager(){
