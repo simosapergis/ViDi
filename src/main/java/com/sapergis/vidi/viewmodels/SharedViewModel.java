@@ -9,6 +9,7 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.widget.Toast;
 import com.sapergis.vidi.R;
+import com.sapergis.vidi.helper.VDBitmap;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
 import com.sapergis.vidi.implementation.VDCloudTTS;
@@ -25,7 +26,7 @@ import androidx.lifecycle.MutableLiveData;
 
 public class SharedViewModel extends AndroidViewModel implements IVDTextOperations {
     private final String className = getClass().getSimpleName();
-    private final MutableLiveData<Bitmap> captured = new MutableLiveData<Bitmap>();
+    private final MutableLiveData<VDBitmap> captured = new MutableLiveData<VDBitmap>();
     private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<VDText>();
     private final MutableLiveData<Boolean> hasInternetConnection = new MutableLiveData<Boolean>();
     private final MutableLiveData<Boolean> operationFinished = new MutableLiveData<Boolean>();
@@ -46,9 +47,9 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         registerCMCallback();
     }
 
-    public void setBitmap (Bitmap bitmap){
-        captured.setValue(bitmap);
-        textRecognitionOn(bitmap);
+    public void setBitmap (VDBitmap vdBitmap){
+        captured.setValue(vdBitmap);
+        textRecognitionOn(vdBitmap.getBitmapImage());
     }
 
     public void setValidRecognizedText (VDText validText){
@@ -71,7 +72,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         return hasInternetConnection;
     }
 
-    public LiveData<Bitmap> getCaptured(){
+    public LiveData<VDBitmap> getCaptured(){
         return captured;
     }
 

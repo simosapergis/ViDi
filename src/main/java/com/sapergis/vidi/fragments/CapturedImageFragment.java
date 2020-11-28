@@ -36,8 +36,8 @@ public class CapturedImageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        sharedViewModel.getCaptured().observe(this, bitmap ->
-                previewImage.setImageBitmap(VDBitmap.rotateBitmap(bitmap,90))
+        sharedViewModel.getCaptured().observe(this, vdBitmap ->
+                previewImage.setImageBitmap(vdBitmap.rotateBitmap())
         );
 
 //        sharedViewModel.getValidRecognizedText().removeObserver(vdTextObserver);

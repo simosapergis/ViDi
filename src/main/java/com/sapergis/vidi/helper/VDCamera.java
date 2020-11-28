@@ -6,7 +6,6 @@ import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.MessageQueue;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
@@ -112,10 +111,12 @@ public class VDCamera implements IVDAutoCapture{
                                     //listener.updateBitmap( BitmapFactory.decodeFile(file.getAbsolutePath()) );
                                     Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                     VDBitmap vdBitmap = new VDBitmap();
-                                    vdBitmap.setImage(bitmap);
+                                    vdBitmap.setBitmapImage(bitmap);
                                     vdBitmap.setRotationDegrees(rotationDegrees);
-                                    sharedViewModel.setBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-                                    VDHelper.debugLog(className, fragment.getString(R.string.image_deleted) + file.delete());
+                                    sharedViewModel.setBitmap(vdBitmap);
+                                    //We delete the picture right after we are done with text process
+                                    boolean imageDeleted =  file.delete();
+                                    VDHelper.debugLog(className, fragment.getString(R.string.image_deleted) + imageDeleted);
 
                                     //                                previewImage.setImageBitmap(rotateBitmap(imageBitmap, 90));
                                 }
