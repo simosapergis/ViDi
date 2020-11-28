@@ -1,7 +1,5 @@
 package com.sapergis.vidi.implementation;
 
-import android.util.Log;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.common.model.DownloadConditions;

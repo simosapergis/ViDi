@@ -61,7 +61,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     }
 
     public void setOperationFinished(boolean isFinished){
-        operationFinished.setValue(isFinished);
+        operationFinished.postValue(isFinished);
     }
 
     public MutableLiveData<Boolean> isTTSOperationFinished() {

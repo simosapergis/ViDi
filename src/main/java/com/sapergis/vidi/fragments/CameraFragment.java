@@ -4,7 +4,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -14,7 +14,6 @@ import android.widget.Button;
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDCamera;
 import com.sapergis.vidi.helper.VDHelper;
-import com.sapergis.vidi.helper.VDText;
 import com.sapergis.vidi.interfaces.IVDAutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
@@ -22,7 +21,6 @@ public class CameraFragment extends Fragment {
     private static final String HAS_AUTOCAPTURE_CALLBACKS = "hasAutoCaptureCallbacks";
     private SharedViewModel sharedViewModel;
     private VDCamera vdCamera;
-    private Observer<VDText> vdTextObserver = vdText -> manageCamera(IVDAutoCapture.STOP);
 
     public CameraFragment() {
         // Required empty public constructor
@@ -46,10 +44,10 @@ public class CameraFragment extends Fragment {
 //        sharedViewModel.getValidRecognizedText().removeObservers(this);
 //        sharedViewModel.getValidRecognizedText().observe(this, vdTextObserver);
         sharedViewModel.isTTSOperationFinished().observe(this, aBoolean -> {
-//               if(getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED){
+               if(getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED){
                 manageCamera(IVDAutoCapture.START);
-                });
-//        });
+                };
+        });
 
     }
 
@@ -71,12 +69,13 @@ public class CameraFragment extends Fragment {
         //TODO Correct the below behavior when changing orientations
         //TODO fix capture repetitions
         boolean hasCallBacks = false;
-        if(savedInstanceState != null){
-            hasCallBacks = savedInstanceState.getBoolean(HAS_AUTOCAPTURE_CALLBACKS);
-        }
-        if(!hasCallBacks){
+        if(savedInstanceState == null){
             manageCamera(IVDAutoCapture.START);
+            //hasCallBacks = savedInstanceState.getBoolean(HAS_AUTOCAPTURE_CALLBACKS);
         }
+//        if(!hasCallBacks){
+//            manageCamera(IVDAutoCapture.START);
+//        }
 
     }
 
