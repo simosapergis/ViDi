@@ -12,6 +12,7 @@ import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDBitmap;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
+import com.sapergis.vidi.helper.VDThread;
 import com.sapergis.vidi.implementation.VDCloudTTS;
 import com.sapergis.vidi.implementation.VDLanguageIdentifier;
 import com.sapergis.vidi.implementation.VDTextRecognizer;
@@ -26,10 +27,10 @@ import androidx.lifecycle.MutableLiveData;
 
 public class SharedViewModel extends AndroidViewModel implements IVDTextOperations {
     private final String className = getClass().getSimpleName();
-    private final MutableLiveData<VDBitmap> captured = new MutableLiveData<VDBitmap>();
-    private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<VDText>();
-    private final MutableLiveData<Boolean> hasInternetConnection = new MutableLiveData<Boolean>();
-    private final MutableLiveData<Boolean> operationFinished = new MutableLiveData<Boolean>();
+    private final MutableLiveData<VDBitmap> captured = new MutableLiveData<>();
+    private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> hasInternetConnection = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> operationFinished;
     private final VDCloudTTS vdCloudTTS;
     private final VDDeviceTTS vdDeviceTTS;
     private final Application application;
@@ -45,9 +46,11 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         vdDeviceTTS = new VDDeviceTTS(application);
         initConnectivityManager();
         registerCMCallback();
+        operationFinished = new MutableLiveData<>(Boolean.valueOf(true));
     }
 
     public void setBitmap (VDBitmap vdBitmap){
+        setOperationFinished(false);
         captured.setValue(vdBitmap);
         textRecognitionOn(vdBitmap.getBitmapImage());
     }
@@ -113,7 +116,15 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     @Override
     public void onTextTranslated(VDText vdText) {
         if(connected) {
-            vdCloudTTS.runTextToSpeechOnCloud(vdText.getTranslatedText());
+            //vdCloudTTS.runTextToSpeechOnCloud(vdText.getTranslatedText());
+            VDThread vdThread = new VDThread(vdCloudTTS, vdText.getTranslatedText());
+            Thread thread = new Thread(vdThread);
+            thread.setPriority(Thread.MAX_PRIORITY);
+            thread.setUncaughtExceptionHandler((t, e) -> {
+                VDHelper.debugLog(getClass().getSimpleName(), "Exception caught for" +
+                        t + " message: "+e.getMessage());
+            });
+            thread.start();
         }else {
             //Sends raw text since Greek language is not supported on device TTS
             //TODO Make it parameterizable

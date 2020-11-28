@@ -43,10 +43,11 @@ public class CameraFragment extends Fragment {
 //        });
 //        sharedViewModel.getValidRecognizedText().removeObservers(this);
 //        sharedViewModel.getValidRecognizedText().observe(this, vdTextObserver);
-        sharedViewModel.isTTSOperationFinished().observe(this, aBoolean -> {
-               if(getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED){
+        sharedViewModel.isTTSOperationFinished().observe(this, isFinished -> {
+            if (isFinished &&
+                    getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED) {
                 manageCamera(IVDAutoCapture.START);
-                };
+            }
         });
 
     }
@@ -69,13 +70,16 @@ public class CameraFragment extends Fragment {
         //TODO Correct the below behavior when changing orientations
         //TODO fix capture repetitions
         boolean hasCallBacks = false;
-        if(savedInstanceState == null){
-            manageCamera(IVDAutoCapture.START);
-            //hasCallBacks = savedInstanceState.getBoolean(HAS_AUTOCAPTURE_CALLBACKS);
+        if(savedInstanceState != null){
+           // manageCamera(IVDAutoCapture.START);
+            hasCallBacks = savedInstanceState.getBoolean(HAS_AUTOCAPTURE_CALLBACKS);
         }
-//        if(!hasCallBacks){
-//            manageCamera(IVDAutoCapture.START);
-//        }
+        if(!hasCallBacks && sharedViewModel.isTTSOperationFinished().getValue()){
+            manageCamera(IVDAutoCapture.START);
+        }
+        VDHelper.debugLog(this.getClass().getSimpleName(), "hasCallbacks : "+hasCallBacks);
+        VDHelper.debugLog(this.getClass().getSimpleName(), "isTTSOperationFinished : "+
+                sharedViewModel.isTTSOperationFinished().getValue());
 
     }
 

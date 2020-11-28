@@ -33,7 +33,7 @@ public class VDDeviceTTS {
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null,null);
     }
 
-    public void speak (String text, IVDTextOperations ivdTextOperations){
+    public synchronized void speak (String text, IVDTextOperations ivdTextOperations){
         try {
             VDHelper.debugLog(className, context.getString(R.string.device_tts_speaking));
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null,null);

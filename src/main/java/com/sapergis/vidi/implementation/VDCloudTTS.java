@@ -5,9 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
+
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
+
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.texttospeech.v1.AudioConfig;
@@ -59,34 +63,55 @@ public class VDCloudTTS {
         }
     }
 
-    public void runTextToSpeechOnCloud(String text) {
+    public synchronized void runTextToSpeechOnCloud(String text) {
         try {
             SynthesizeSpeechResponse response;
+            boolean terminated;
             try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create(textToSpeechSettings)) {
                 VDHelper.debugLog(className, context.getString(R.string.send_google_cloud_tts_req));
                 SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
                 response = textToSpeechClient
                         .synthesizeSpeech(input, voice, audioConfig);
+                terminated = textToSpeechClient.awaitTermination(1, TimeUnit.SECONDS);
+
             }
-            VDHelper.debugLog(className, context.getString(R.string.get_google_cloud_tts_res));
-            ByteString audioContents = response.getAudioContent();
-            //TODO : DO save the mp3 in a more generic way
-            File mp3File = new File(VDHelper.MP3FILEPATH);
-            try (OutputStream outputStream = new FileOutputStream(mp3File)) {
-                outputStream.write(audioContents.toByteArray());
+            if (terminated){
+                  terminateCallback("textTospeech client terminated due to timeout.");
+            }else{
+                VDHelper.debugLog(className, context.getString(R.string.get_google_cloud_tts_res));
+                ByteString audioContents = response.getAudioContent();
+                //TODO : DO save the mp3 in a more generic way
+                File mp3File = new File(VDHelper.MP3FILEPATH);
+                try (OutputStream outputStream = new FileOutputStream(mp3File)) {
+                    outputStream.write(audioContents.toByteArray());
+                }
+                MediaPlayer mediaPlayer = MediaPlayer.create(context, Uri.fromFile(mp3File));
+                VDHelper.debugLog(getClass().getSimpleName(), context.getString(R.string.cloud_tts_speaking));
+                //mediaPlayer.prepareAsync();
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener( mp -> {
+                            ivdTextOperations.onTextToSpeechFinished();
+                            mp.release();
+                            VDHelper.debugLog(getClass().getSimpleName(), context.getString(R.string.cloud_tts_finished));
+                        }
+                );
+                mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                    VDHelper.debugLog(getClass().getSimpleName(),
+                            "Mediaplayer failed. Details:\n" +
+                                    "mp :" + mp + "\n" +
+                                    "what : " + what + "\n" +
+                                    " extra : " + extra);
+                    return false;
+                });
             }
-            MediaPlayer mediaPlayer = MediaPlayer.create(context, Uri.fromFile(mp3File));
-            VDHelper.debugLog(getClass().getSimpleName(), context.getString(R.string.cloud_tts_speaking));
-            mediaPlayer.start();
-            mediaPlayer.setOnCompletionListener( mp -> {
-                    ivdTextOperations.onTextToSpeechFinished();
-                    mp.release();
-                    VDHelper.debugLog(getClass().getSimpleName(), context.getString(R.string.cloud_tts_finished));
-                    }
-            );
+
         } catch (Exception e) {
-            ivdTextOperations.onOperationTerminated(e.getMessage());
+           terminateCallback(e.getMessage());
         }
     }
 
+    public void terminateCallback(String message){
+        ivdTextOperations.onOperationTerminated(message);
+    }
 }
+
