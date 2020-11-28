@@ -5,7 +5,7 @@ import android.graphics.Matrix;
 
 public class VDBitmap  {
     private Bitmap bitmapImage = null;
-    private float rotationDegrees = 0.0f;
+    private int degreesToRotate;
     private float width;
     private float height;
     private static final float ANGLE = 90.0f;
@@ -18,12 +18,12 @@ public class VDBitmap  {
         this.bitmapImage = bitmapImage;
     }
 
-    public float getRotationDegrees() {
-        return rotationDegrees;
+    public float getDegreesToRotate() {
+        return degreesToRotate;
     }
 
-    public void setRotationDegrees(float rotationDegrees) {
-        this.rotationDegrees = rotationDegrees;
+    public void setDegreesToRotate(int degreesToRotate) {
+        this.degreesToRotate = degreesToRotate;
     }
 
     public float getWidth() {
@@ -44,8 +44,9 @@ public class VDBitmap  {
 
     public Bitmap rotateBitmap(){
         Matrix matrix = new Matrix();
-        matrix.postRotate(this.rotationDegrees);
-        matrix.postRotate(0);
+        // 0 -> 90
+        //90 - > 0;
+        matrix.postRotate(degreesToRotate);
         return Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(),
                 bitmapImage.getHeight(), matrix, true);
     }

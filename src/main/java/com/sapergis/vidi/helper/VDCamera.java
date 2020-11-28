@@ -40,7 +40,9 @@ public class VDCamera implements IVDAutoCapture{
     private final Handler captureHandler = new Handler();
     private Runnable capture = null;
     private Runnable camera;
-    private float rotationDegrees;
+    private int degreesToRotate;
+//    private float centerX;
+//    private float centerY;
     private int count = 0;
     private Handler handler = new Handler(Looper.getMainLooper());;
 
@@ -112,7 +114,9 @@ public class VDCamera implements IVDAutoCapture{
                                     Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                     VDBitmap vdBitmap = new VDBitmap();
                                     vdBitmap.setBitmapImage(bitmap);
-                                    vdBitmap.setRotationDegrees(rotationDegrees);
+                                    vdBitmap.setDegreesToRotate(degreesToRotate);
+//                                    vdBitmap.setWidth(centerX);
+//                                    vdBitmap.setHeight(centerY);
                                     sharedViewModel.setBitmap(vdBitmap);
                                     //We delete the picture right after we are done with text process
                                     boolean imageDeleted =  file.delete();
@@ -141,7 +145,7 @@ public class VDCamera implements IVDAutoCapture{
 
                 ImageAnalysis analyzerUseCase = new ImageAnalysis(analyzerConfig);
                 analyzerUseCase.setAnalyzer(new VDImageAnalyzer());
-                CameraX.bindToLifecycle((LifecycleOwner) fragment,preview, imageCapture);
+                CameraX.bindToLifecycle((LifecycleOwner) fragment,preview, imageCapture, analyzerUseCase);
             }
 
         };
@@ -160,7 +164,7 @@ public class VDCamera implements IVDAutoCapture{
 
         float centerX = viewFinder.getWidth() / 2f;
         float centerY = viewFinder.getHeight() / 2f;
-
+        float rotationDegrees;
         // Correct preview output to account for display rotation
         switch (viewFinder.getDisplay().getRotation()) {
             case Surface.ROTATION_0:
@@ -232,7 +236,7 @@ public class VDCamera implements IVDAutoCapture{
     private class VDImageAnalyzer implements ImageAnalysis.Analyzer{
         @Override
         public void analyze(ImageProxy image, int rotationDegrees) {
-            int x = rotationDegrees;
+            degreesToRotate = rotationDegrees;
         }
     }
 }
