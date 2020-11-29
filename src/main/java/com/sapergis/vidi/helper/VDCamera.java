@@ -44,7 +44,7 @@ public class VDCamera implements IVDAutoCapture{
 //    private float centerX;
 //    private float centerY;
     private int count = 0;
-    private Handler handler = new Handler(Looper.getMainLooper());;
+    //private Handler handler = new Handler(Looper.getMainLooper());;
 
     public VDCamera (Fragment fragment, TextureView textureView, Button captureButton){
         this.fragment = fragment;
@@ -151,13 +151,13 @@ public class VDCamera implements IVDAutoCapture{
         };
     }
 
-    public synchronized void cameraWait() throws InterruptedException {
-        camera.wait();
-    }
-
-    public synchronized void cameraNotify(){
-        camera.notify();
-    }
+//    public synchronized void cameraWait() throws InterruptedException {
+//        camera.wait();
+//    }
+//
+//    public synchronized void cameraNotify(){
+//        camera.notify();
+//    }
 
     private void updateTransform() {
         android.graphics.Matrix matrix = new Matrix();
@@ -194,7 +194,7 @@ public class VDCamera implements IVDAutoCapture{
     }
 
     @Override
-    public void setAutoCapture(int interval, int captureRepetitions) {
+    public void setAutoCapture(Handler handler) {
 //        VDHelper.debugLog(className, fragment.getString(R.string.starting_autocapture));
 //        capture = new Runnable() {
 ////            @Override
@@ -213,17 +213,22 @@ public class VDCamera implements IVDAutoCapture{
 //        handler.postDelayed(captureButton::performClick, 5000);
 //        VDHelper.debugLog(getClass().getSimpleName(), "Handler instantiated..");
         capture = captureButton::performClick;
-        handler.postDelayed(capture, 5000);
-        VDHelper.debugLog(getClass().getSimpleName(), "Handler instantiated..");
+        if(!handler.hasCallbacks(capture)){
+            handler.postDelayed(capture, 5000);
+            VDHelper.debugLog(getClass().getSimpleName(), "Handler instantiated..");
+        }else{
+            VDHelper.debugLog(this.getClass().getSimpleName(), "Handler hasCallbacks ");
+        }
+
     }
 
-    public boolean hasAutoCaptureCallbacks (){
-        return capture != null && handler.hasCallbacks(capture);
-    }
-
-    public void removeAutoCaptureCallbacks(){
-        handler.removeCallbacksAndMessages(null);
-    }
+//    public boolean hasAutoCaptureCallbacks (){
+//        return capture != null && handler.hasCallbacks(capture);
+//    }
+//
+//    public void removeAutoCaptureCallbacks(){
+//        handler.removeCallbacksAndMessages(null);
+//    }
     @Override
     public void releaseAutoCapture() {
         captureHandler.removeCallbacks(capture);

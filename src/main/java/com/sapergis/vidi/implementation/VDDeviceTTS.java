@@ -1,7 +1,6 @@
 package com.sapergis.vidi.implementation;
 
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.speech.tts.TextToSpeech;
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDHelper;
@@ -38,7 +37,7 @@ public class VDDeviceTTS {
             VDHelper.debugLog(className, context.getString(R.string.device_tts_speaking));
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null,null);
             VDHelper.debugLog(className, context.getString(R.string.device_tts_finished));
-            ivdTextOperations.onTextToSpeechFinished();
+            ivdTextOperations.onDeviceTTSFinished();
         }catch (Exception e){
             ivdTextOperations.onOperationTerminated(e.getMessage());
         }

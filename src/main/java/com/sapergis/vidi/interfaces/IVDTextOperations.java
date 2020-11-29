@@ -1,9 +1,8 @@
 package com.sapergis.vidi.interfaces;
 
 import android.graphics.Bitmap;
-
+import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.sapergis.vidi.helper.VDText;
-
 import javax.annotation.Nullable;
 
 public interface IVDTextOperations {
@@ -12,6 +11,8 @@ public interface IVDTextOperations {
     void onTextRecognized(String recognizedText);
     void onLanguageIdentified(String languageCode, String recognizedText);
     void onTextTranslated(VDText vdText);
-    void onTextToSpeechFinished();
+    void onCloudTTSFinished(SynthesizeSpeechResponse response);
+    void onDeviceTTSFinished();
     void onOperationTerminated(@Nullable String message);
+    void onSpeechServiceFinished();
 }

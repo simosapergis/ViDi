@@ -17,6 +17,8 @@ import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.interfaces.IVDAutoCapture;
 import com.sapergis.vidi.viewmodels.SharedViewModel;
 
+import java.util.Objects;
+
 public class CameraFragment extends Fragment {
     private static final String HAS_AUTOCAPTURE_CALLBACKS = "hasAutoCaptureCallbacks";
     private SharedViewModel sharedViewModel;
@@ -69,15 +71,15 @@ public class CameraFragment extends Fragment {
         VDHelper.debugLog(getClass().getSimpleName(), getClass().getSimpleName()+" View Created");
         //TODO Correct the below behavior when changing orientations
         //TODO fix capture repetitions
-        boolean hasCallBacks = false;
-        if(savedInstanceState != null){
-           // manageCamera(IVDAutoCapture.START);
-            hasCallBacks = savedInstanceState.getBoolean(HAS_AUTOCAPTURE_CALLBACKS);
-        }
-        if(!hasCallBacks && sharedViewModel.isTTSOperationFinished().getValue()){
+        //boolean hasCallBacks = sharedViewModel.getHandler().hasCallbacks();
+//        if(savedInstanceState != null){
+//           // manageCamera(IVDAutoCapture.START);
+//            hasCallBacks = savedInstanceState.getBoolean(HAS_AUTOCAPTURE_CALLBACKS);
+//        }
+        if(Objects.equals(sharedViewModel.isTTSOperationFinished().getValue(), Boolean.TRUE)){
             manageCamera(IVDAutoCapture.START);
         }
-        VDHelper.debugLog(this.getClass().getSimpleName(), "hasCallbacks : "+hasCallBacks);
+        //VDHelper.debugLog(this.getClass().getSimpleName(), "hasCallbacks : "+hasCallBacks);
         VDHelper.debugLog(this.getClass().getSimpleName(), "isTTSOperationFinished : "+
                 sharedViewModel.isTTSOperationFinished().getValue());
 
@@ -87,7 +89,7 @@ public class CameraFragment extends Fragment {
         if( action.equals(IVDAutoCapture.START) ){
             //TODO Correct the below behavior when changing orientations
             //TODO fix capture repetitions
-            vdCamera.setAutoCapture(IVDAutoCapture.DEFAULT_INTERVAL, 10);
+            vdCamera.setAutoCapture(sharedViewModel.getHandler());
         }else if ( action.equals(IVDAutoCapture.STOP) ){
         //    vdCamera.releaseAutoCapture();
         }
@@ -105,7 +107,7 @@ public class CameraFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(HAS_AUTOCAPTURE_CALLBACKS, vdCamera.hasAutoCaptureCallbacks());
+        //outState.putBoolean(HAS_AUTOCAPTURE_CALLBACKS, vdCamera.hasAutoCaptureCallbacks());
     }
 
     @Override
@@ -113,7 +115,7 @@ public class CameraFragment extends Fragment {
         super.onDestroyView();
         manageCamera(IVDAutoCapture.STOP);
         sharedViewModel.isTTSOperationFinished().removeObservers(this);
-        vdCamera.removeAutoCaptureCallbacks();
+//        vdCamera.removeAutoCaptureCallbacks();
 //        sharedViewModel.getValidRecognizedText().removeObservers(this);
     }
 

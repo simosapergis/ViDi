@@ -7,8 +7,12 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.os.Handler;
 import android.widget.Toast;
+
+import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.sapergis.vidi.R;
+import com.sapergis.vidi.helper.VDApplication;
 import com.sapergis.vidi.helper.VDBitmap;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.helper.VDText;
@@ -33,7 +37,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     private final MutableLiveData<Boolean> operationFinished;
     private final VDCloudTTS vdCloudTTS;
     private final VDDeviceTTS vdDeviceTTS;
-    private final Application application;
+    private final VDApplication application;
     private ConnectivityManager cm;
     private ConnectivityManager.NetworkCallback networkCallback;
     private NetworkRequest networkRequest;
@@ -41,7 +45,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
 
     public SharedViewModel(@NonNull Application application) {
         super(application);
-        this.application = application;
+        this.application = (VDApplication)application;
         vdCloudTTS = new VDCloudTTS(application, this);
         vdDeviceTTS = new VDDeviceTTS(application);
         initConnectivityManager();
@@ -132,15 +136,27 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         }
     }
 
+
     @Override
-    public void onTextToSpeechFinished() {
-         setOperationFinished(true);
+    public void onCloudTTSFinished(SynthesizeSpeechResponse response) {
+         //setOperationFinished(true);
+        //TODO implement service logic
+    }
+
+    @Override
+    public void onDeviceTTSFinished() {
+        setOperationFinished(true);
     }
 
     @Override
     public void onOperationTerminated(String message) {
         VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated) +" "+message);
         setOperationFinished(true);
+    }
+
+    @Override
+    public void onSpeechServiceFinished() {
+
     }
 
     private void initConnectivityManager(){
@@ -174,6 +190,10 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
             }
         };
 
+    }
+
+    public Handler getHandler(){
+        return application.mainThreadHandler;
     }
 
     public Network getCurrentNetwork (){
