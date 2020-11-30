@@ -32,6 +32,11 @@ public class VDHelper {
 
     /**
      *
+     */
+    public static final String TTS_AUDIO_BYTES = "ttsAudioBytes";
+
+    /**
+     *
      * @param className The name of the class that calls the debug log, for extra logging info
      * @param message The message to be logged
      */

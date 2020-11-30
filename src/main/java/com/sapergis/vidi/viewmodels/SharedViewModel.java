@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.widget.Toast;
 
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
+import com.google.protobuf.ByteString;
 import com.sapergis.vidi.R;
 import com.sapergis.vidi.helper.VDApplication;
 import com.sapergis.vidi.helper.VDBitmap;
@@ -34,6 +35,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     private final MutableLiveData<VDBitmap> captured = new MutableLiveData<>();
     private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<>();
     private final MutableLiveData<Boolean> hasInternetConnection = new MutableLiveData<>();
+    private final MutableLiveData<byte[]> googleTTsResponse = new MutableLiveData<>();
     private final MutableLiveData<Boolean> operationFinished;
     private final VDCloudTTS vdCloudTTS;
     private final VDDeviceTTS vdDeviceTTS;
@@ -85,6 +87,10 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
 
     public LiveData<VDText> getValidRecognizedText(){
         return validRecognizedText;
+    }
+
+    public MutableLiveData<byte[]> getGoogleTTsResponse() {
+        return googleTTsResponse;
     }
 
     public void setConnected(boolean connected) {
@@ -141,6 +147,16 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     public void onCloudTTSFinished(SynthesizeSpeechResponse response) {
          //setOperationFinished(true);
         //TODO implement service logic
+        if(response !=null ){
+            ByteString byteString = response.toByteString();
+            byte[] byteArray =  byteString.toByteArray();
+            googleTTsResponse.postValue(byteArray);
+        }else{
+            VDHelper.debugLog(getClass().getSimpleName(),
+                    application.getString(R.string.google_tts_resp_null));
+        }
+
+
     }
 
     @Override
@@ -149,14 +165,14 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     }
 
     @Override
-    public void onOperationTerminated(String message) {
-        VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated) +" "+message);
+    public void onSpeechServiceFinished() {
         setOperationFinished(true);
     }
 
     @Override
-    public void onSpeechServiceFinished() {
-
+    public void onOperationTerminated(String message) {
+        VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated) +" "+message);
+        setOperationFinished(true);
     }
 
     private void initConnectivityManager(){

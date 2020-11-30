@@ -20,9 +20,13 @@
     <string name="initiating_google_cloud_tts">Initiating Google Cloud TTS…</string>
     <string name="send_google_cloud_tts_req">Sending TTS request to Google Cloud…</string>
     <string name="get_google_cloud_tts_res">TTS response received from Google Cloud</string>
-    <string name="cloud_tts_speaking">Cloud TTS speaking…</string>
-    <string name="cloud_tts_finished">Cloud TTS finished. Now starting again autocapture</string>
+    <string name="service_tts_speaking">TTS from Service now speaking…</string>
+    <string name="service_tts_finished">TS from Service is finished.</string>
+    <string name="starting_again_auto_capture">Starting again auto capture</string>
     <string name="operation_terminated">Text Operation terminated</string>
     <string name="device_tts_speaking">Device TTS speaking…</string>
     <string name="device_tts_finished">Device TTS finished</string>
+    <string name="google_tts_resp_null">"Google tts response was null."</string>
+    <string name="starting_audio_service">Starting audio service…</string>
+    <string name="handling_message">Handling the message inside service handler</string>
 </resources>

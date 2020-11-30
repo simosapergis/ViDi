@@ -6,6 +6,7 @@ import com.sapergis.vidi.fragments.CameraFragment;
 import com.sapergis.vidi.fragments.CapturedImageFragment;
 import com.sapergis.vidi.helper.GrantPermissions;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -54,5 +55,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         getSupportFragmentManager().putFragment(outState, CAMERA_FRAGMENT, cameraFragment);
+    }
+
+
+    @Nullable
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return super.onRetainCustomNonConfigurationInstance();
     }
 }

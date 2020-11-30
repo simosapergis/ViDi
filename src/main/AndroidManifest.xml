@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".services.VDPlayerService"
+            android:name=".services.VDAudioService"
             android:exported="false"
             />
         <meta-data
