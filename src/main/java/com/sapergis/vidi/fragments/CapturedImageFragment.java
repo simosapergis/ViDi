@@ -1,5 +1,7 @@
 package com.sapergis.vidi.fragments;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,8 +15,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Handler;
 import android.os.IBinder;
-import android.os.IInterface;
+import android.os.Message;
+import android.os.Messenger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +32,11 @@ import java.util.Objects;
 
 
 public class CapturedImageFragment extends Fragment implements ServiceConnection {
+    private final static int SERVICE_TASK_FINISHED = 1001;
     private SharedViewModel sharedViewModel;
     private ImageView previewImage;;
+    private boolean isBound;
+    private static ServiceConnection serviceConnection;
     //private Observer<VDText> vdTextObserver = vdText -> VDTextToSpeech.runTextToSpeechOnCloud( vdText.getTranslatedText(), this.);
 
     public CapturedImageFragment() {
@@ -38,7 +45,6 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
 
     public static CapturedImageFragment newInstance(String param1, String param2) {
         CapturedImageFragment fragment = new CapturedImageFragment();
-        Bundle args = new Bundle();
         return fragment;
     }
 
@@ -51,6 +57,7 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
                 previewImage.setImageBitmap(vdBitmap.rotateBitmap())
         );
         sharedViewModel.getGoogleTTsResponse().observe(this, this::startAudioService);
+        serviceConnection = this;
 //        sharedViewModel.getValidRecognizedText().removeObserver(vdTextObserver);
 //        sharedViewModel.getValidRecognizedText().observe(this, vdTextObserver);
 
@@ -84,14 +91,20 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
             Intent serviceIntent = new Intent(getActivity(), VDAudioService.class);
             Bundle bundle = new Bundle();
             bundle.putByteArray(VDHelper.TTS_AUDIO_BYTES, ttsAudioBytes);
+            MessageHandler messageHandler = new MessageHandler();
+            Messenger messenger = new Messenger(messageHandler);
+            bundle.putParcelable("serviceMessenger", messenger);
             serviceIntent.putExtras(bundle);
             Objects.requireNonNull(getActivity()).
                     startService(serviceIntent);
-            Objects.requireNonNull(getActivity()).
+            isBound = Objects.requireNonNull(getActivity()).
                     bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
         }
+    }
 
-
+    private void finishService(){
+        Objects.requireNonNull(getActivity()).unbindService(serviceConnection);
+        isBound = false;
     }
 
     @Override
@@ -112,5 +125,15 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
     @Override
     public void onNullBinding(ComponentName name) {
         int x = 3;
+    }
+
+    private class MessageHandler extends Handler{
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            sharedViewModel.getCallbackInstance().onSpeechServiceFinished();
+            if(isBound){
+                finishService();
+            }
+        }
     }
 }

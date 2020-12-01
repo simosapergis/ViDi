@@ -57,10 +57,4 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().putFragment(outState, CAMERA_FRAGMENT, cameraFragment);
     }
 
-
-    @Nullable
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-        return super.onRetainCustomNonConfigurationInstance();
-    }
 }

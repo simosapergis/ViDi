@@ -1,5 +1,6 @@
 package com.sapergis.vidi.services;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -11,7 +12,9 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.Process;
+import android.os.RemoteException;
 import android.util.Log;
 import com.google.protobuf.ByteString;
 import com.sapergis.vidi.R;
@@ -63,7 +66,7 @@ public class VDAudioService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        return super.onUnbind(intent);
+        return true;
     }
 
     @Override
@@ -81,6 +84,7 @@ public class VDAudioService extends Service {
         public void handleMessage(@NonNull Message msg) {
             VDHelper.debugLog(this.getClass().getSimpleName(), getApplication().getString(R.string.handling_message));
             Bundle bundle  = msg.getData();
+            Messenger messenger = bundle.getParcelable("serviceMessenger");
             byte [] ttsAudioBytes = bundle.getByteArray(VDHelper.TTS_AUDIO_BYTES);
             try{
                 ByteString audioContents = ByteString.copyFrom(ttsAudioBytes);
@@ -97,6 +101,11 @@ public class VDAudioService extends Service {
                             mp.release();
                             mp = null;
                             VDHelper.debugLog(getClass().getSimpleName(), getApplicationContext().getString(R.string.service_tts_finished));
+                            try {
+                                messenger.send(new Message());
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            }
                         }
                 );
                 mediaPlayer.setOnErrorListener((mp, what, extra) -> {
@@ -113,7 +122,6 @@ public class VDAudioService extends Service {
             }
             //arg1 is the id of the specific service
             stopSelf(msg.arg1);
-           
 
         }
     }

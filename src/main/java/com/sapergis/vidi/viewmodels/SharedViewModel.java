@@ -9,7 +9,6 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Handler;
 import android.widget.Toast;
-
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.protobuf.ByteString;
 import com.sapergis.vidi.R;
@@ -173,6 +172,10 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     public void onOperationTerminated(String message) {
         VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated) +" "+message);
         setOperationFinished(true);
+    }
+
+    public IVDTextOperations getCallbackInstance(){
+        return this;
     }
 
     private void initConnectivityManager(){
