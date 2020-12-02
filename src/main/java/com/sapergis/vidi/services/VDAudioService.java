@@ -56,6 +56,12 @@ public class VDAudioService extends Service {
         return true;
     }
 
+    private void sendMessage(Intent intent){
+        Message message = serviceHandler.obtainMessage();
+        message.setData(intent.getExtras());
+        serviceHandler.sendMessage(message);
+    }
+
     private final class ServiceHandler extends Handler{
         public ServiceHandler(Looper looper){
             super(looper);
@@ -102,12 +108,6 @@ public class VDAudioService extends Service {
                         "IOException Thrown. Details-> "+ex.getMessage());
             }
         }
-    }
-
-    private void sendMessage(Intent intent){
-        Message message = serviceHandler.obtainMessage();
-        message.setData(intent.getExtras());
-        serviceHandler.sendMessage(message);
     }
 
     public class VDBinder extends Binder {

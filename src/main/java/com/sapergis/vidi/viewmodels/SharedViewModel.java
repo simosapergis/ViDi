@@ -16,12 +16,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 import android.widget.Toast;
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.protobuf.ByteString;
 import com.sapergis.vidi.R;
-import com.sapergis.vidi.fragments.CapturedImageFragment;
 import com.sapergis.vidi.helper.VDApplication;
 import com.sapergis.vidi.helper.VDBitmap;
 import com.sapergis.vidi.helper.VDHelper;
@@ -34,11 +32,9 @@ import com.sapergis.vidi.implementation.VDDeviceTTS;
 import com.sapergis.vidi.implementation.VDTextTranslator;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
 import com.sapergis.vidi.services.VDAudioService;
-
 import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -58,8 +54,8 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     private boolean connected;
     private boolean isBound;
     private Thread thread;
-    public IBinder service ;
-    Intent serviceIntent;
+    private IBinder service ;
+    private Intent serviceIntent;
 
     public SharedViewModel(@NonNull Application application) {
         super(application);
@@ -81,10 +77,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         validRecognizedText.setValue(validText);
     }
 
-    public void setIsConnected (boolean isConnected){
-        hasInternetConnection.setValue(isConnected);
-    }
-
     public void setOperationFinished(boolean isFinished){
         operationFinished.postValue(isFinished);
     }
@@ -93,28 +85,16 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         return operationFinished;
     }
 
-    public LiveData<Boolean> isConnected (){
-        return hasInternetConnection;
-    }
-
     public LiveData<VDBitmap> getCaptured(){
         return captured;
-    }
-
-    public LiveData<VDText> getValidRecognizedText(){
-        return validRecognizedText;
     }
 
     public MutableLiveData<byte[]> getGoogleTTsResponse() {
         return googleTTsResponse;
     }
 
-    public void setConnected(boolean connected) {
-        this.connected = connected;
-    }
-
-    public boolean getConnected(){
-        return connected;
+    public Handler getHandler(){
+        return application.mainThreadHandler;
     }
 
     @Override
@@ -191,10 +171,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         setOperationFinished(true);
     }
 
-    public IVDTextOperations getCallbackInstance(){
-        return this;
-    }
-
     private void initConnectivityManager(){
         cm = (ConnectivityManager) Objects.requireNonNull(application.getApplicationContext())
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -228,15 +204,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
 
     }
 
-    public Handler getHandler(){
-        return application.mainThreadHandler;
-    }
-
-    public Network getCurrentNetwork (){
-        return cm.getActiveNetwork();
-    }
-
-
     private void startAudioService(byte [] ttsAudioBytes){
             VDHelper.debugLog(this.getClass().getSimpleName(),
                     application.getString(R.string.starting_audio_service));
@@ -250,10 +217,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
             //application.startService(serviceIntent);
            isBound =  application.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
 
-    }
-
-    public Intent getServiceIntent(){
-        return serviceIntent;
     }
 
     private void finishService(){
@@ -299,28 +262,19 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
 
     @Override
     public void onBindingDied(ComponentName name) {
-        ComponentName n = name;
     }
 
     @Override
     public void onNullBinding(ComponentName name) {
-        ComponentName n = name;
     }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
             this.service = service;
-        try {
-            service.linkToDeath(getDethRecipient(), 1);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        ComponentName n = name;
     }
 
     private class MessageHandler extends Handler{
@@ -337,12 +291,4 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         }
     }
 
-    private IBinder.DeathRecipient getDethRecipient (){
-        return new IBinder.DeathRecipient() {
-            @Override
-            public void binderDied() {
-                int x =1;
-            }
-        };
-    }
 }
