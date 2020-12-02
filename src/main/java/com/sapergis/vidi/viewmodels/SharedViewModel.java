@@ -1,17 +1,27 @@
 package com.sapergis.vidi.viewmodels;
 
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.widget.Toast;
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.protobuf.ByteString;
 import com.sapergis.vidi.R;
+import com.sapergis.vidi.fragments.CapturedImageFragment;
 import com.sapergis.vidi.helper.VDApplication;
 import com.sapergis.vidi.helper.VDBitmap;
 import com.sapergis.vidi.helper.VDHelper;
@@ -23,13 +33,16 @@ import com.sapergis.vidi.implementation.VDTextRecognizer;
 import com.sapergis.vidi.implementation.VDDeviceTTS;
 import com.sapergis.vidi.implementation.VDTextTranslator;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
+import com.sapergis.vidi.services.VDAudioService;
+
 import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-public class SharedViewModel extends AndroidViewModel implements IVDTextOperations {
+public class SharedViewModel extends AndroidViewModel implements IVDTextOperations, ServiceConnection {
     private final String className = getClass().getSimpleName();
     private final MutableLiveData<VDBitmap> captured = new MutableLiveData<>();
     private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<>();
@@ -43,6 +56,10 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     private ConnectivityManager.NetworkCallback networkCallback;
     private NetworkRequest networkRequest;
     private boolean connected;
+    private boolean isBound;
+    private Thread thread;
+    public IBinder service ;
+    Intent serviceIntent;
 
     public SharedViewModel(@NonNull Application application) {
         super(application);
@@ -127,7 +144,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         if(connected) {
             //vdCloudTTS.runTextToSpeechOnCloud(vdText.getTranslatedText());
             VDThread vdThread = new VDThread(vdCloudTTS, vdText.getTranslatedText());
-            Thread thread = new Thread(vdThread);
+            thread = new Thread(vdThread);
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.setUncaughtExceptionHandler((t, e) -> {
                 VDHelper.debugLog(getClass().getSimpleName(), "Exception caught for" +
@@ -145,11 +162,11 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     @Override
     public void onCloudTTSFinished(SynthesizeSpeechResponse response) {
          //setOperationFinished(true);
-        //TODO implement service logic
         if(response !=null ){
             ByteString byteString = response.toByteString();
             byte[] byteArray =  byteString.toByteArray();
-            googleTTsResponse.postValue(byteArray);
+           // googleTTsResponse.postValue(byteArray);
+            startAudioService(byteArray);
         }else{
             VDHelper.debugLog(getClass().getSimpleName(),
                     application.getString(R.string.google_tts_resp_null));
@@ -219,6 +236,31 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         return cm.getActiveNetwork();
     }
 
+
+    private void startAudioService(byte [] ttsAudioBytes){
+            VDHelper.debugLog(this.getClass().getSimpleName(),
+                    application.getString(R.string.starting_audio_service));
+            serviceIntent = new Intent(application, VDAudioService.class);
+            Bundle bundle = new Bundle();
+            bundle.putByteArray(VDHelper.TTS_AUDIO_BYTES, ttsAudioBytes);
+            MessageHandler messageHandler = new MessageHandler(Looper.getMainLooper());
+            Messenger messenger = new Messenger(messageHandler);
+            bundle.putParcelable("serviceMessenger", messenger);
+            serviceIntent.putExtras(bundle);
+            //application.startService(serviceIntent);
+           isBound =  application.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
+
+    }
+
+    public Intent getServiceIntent(){
+        return serviceIntent;
+    }
+
+    private void finishService(){
+        application.unbindService(this);
+        application.stopService(serviceIntent);
+        isBound = false;
+    }
     /**
     This is getting handled by the activity/fragment
      */
@@ -253,5 +295,54 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     public void notifyCheckConnection(){
         Toast.makeText(application, application.getString(R.string.connection_check),
                 Toast.LENGTH_LONG ).show();
+    }
+
+    @Override
+    public void onBindingDied(ComponentName name) {
+        ComponentName n = name;
+    }
+
+    @Override
+    public void onNullBinding(ComponentName name) {
+        ComponentName n = name;
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+            this.service = service;
+        try {
+            service.linkToDeath(getDethRecipient(), 1);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        ComponentName n = name;
+    }
+
+    private class MessageHandler extends Handler{
+        public MessageHandler(@NonNull Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            onSpeechServiceFinished();
+            if(isBound){
+                finishService();
+            }
+        }
+    }
+
+    private IBinder.DeathRecipient getDethRecipient (){
+        return new IBinder.DeathRecipient() {
+            @Override
+            public void binderDied() {
+                int x =1;
+            }
+        };
     }
 }

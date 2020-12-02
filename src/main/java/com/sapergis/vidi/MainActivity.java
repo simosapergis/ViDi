@@ -6,7 +6,6 @@ import com.sapergis.vidi.fragments.CameraFragment;
 import com.sapergis.vidi.fragments.CapturedImageFragment;
 import com.sapergis.vidi.helper.GrantPermissions;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -27,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
         }else{
             GrantPermissions.requestPermissions(this);
         }
-
     }
 
     @Override

@@ -35,8 +35,8 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
     private final static int SERVICE_TASK_FINISHED = 1001;
     private SharedViewModel sharedViewModel;
     private ImageView previewImage;;
-    private boolean isBound;
-    private static ServiceConnection serviceConnection;
+ //   private boolean isBound;
+ //   private static ServiceConnection serviceConnection;
     //private Observer<VDText> vdTextObserver = vdText -> VDTextToSpeech.runTextToSpeechOnCloud( vdText.getTranslatedText(), this.);
 
     public CapturedImageFragment() {
@@ -56,8 +56,8 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
         sharedViewModel.getCaptured().observe(this, vdBitmap ->
                 previewImage.setImageBitmap(vdBitmap.rotateBitmap())
         );
-        sharedViewModel.getGoogleTTsResponse().observe(this, this::startAudioService);
-        serviceConnection = this;
+//        sharedViewModel.getGoogleTTsResponse().observe(this, this::startAudioService);
+//        serviceConnection = this;
 //        sharedViewModel.getValidRecognizedText().removeObserver(vdTextObserver);
 //        sharedViewModel.getValidRecognizedText().observe(this, vdTextObserver);
 
@@ -70,6 +70,7 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
         previewImage = (ImageView) view.findViewById(R.id.previewImage);
         return view;
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -85,27 +86,27 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
         //vdDeviceTTS.shutDown();
     }
 
-    private void startAudioService(byte [] ttsAudioBytes){
-        if(getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED){
-            VDHelper.debugLog(this.getClass().getSimpleName(), getString(R.string.starting_audio_service));
-            Intent serviceIntent = new Intent(getActivity(), VDAudioService.class);
-            Bundle bundle = new Bundle();
-            bundle.putByteArray(VDHelper.TTS_AUDIO_BYTES, ttsAudioBytes);
-            MessageHandler messageHandler = new MessageHandler();
-            Messenger messenger = new Messenger(messageHandler);
-            bundle.putParcelable("serviceMessenger", messenger);
-            serviceIntent.putExtras(bundle);
-            Objects.requireNonNull(getActivity()).
-                    startService(serviceIntent);
-            isBound = Objects.requireNonNull(getActivity()).
-                    bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
-        }
-    }
+//    private void startAudioService(byte [] ttsAudioBytes){
+//        if(getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED){
+//            VDHelper.debugLog(this.getClass().getSimpleName(), getString(R.string.starting_audio_service));
+//            Intent serviceIntent = new Intent(getActivity(), VDAudioService.class);
+//            Bundle bundle = new Bundle();
+//            bundle.putByteArray(VDHelper.TTS_AUDIO_BYTES, ttsAudioBytes);
+//            MessageHandler messageHandler = new MessageHandler();
+//            Messenger messenger = new Messenger(messageHandler);
+//            bundle.putParcelable("serviceMessenger", messenger);
+//            serviceIntent.putExtras(bundle);
+//            Objects.requireNonNull(getActivity()).
+//                    startService(serviceIntent);
+//            isBound = Objects.requireNonNull(getActivity()).
+//                    bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
+//        }
+//    }
 
-    private void finishService(){
-        Objects.requireNonNull(getActivity()).unbindService(serviceConnection);
-        isBound = false;
-    }
+//    private void finishService(){
+//        Objects.requireNonNull(getActivity()).unbindService(serviceConnection);
+//        isBound = false;
+//    }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -127,13 +128,13 @@ public class CapturedImageFragment extends Fragment implements ServiceConnection
         int x = 3;
     }
 
-    private class MessageHandler extends Handler{
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            sharedViewModel.getCallbackInstance().onSpeechServiceFinished();
-            if(isBound){
-                finishService();
-            }
-        }
-    }
+//    private class MessageHandler extends Handler{
+//        @Override
+//        public void handleMessage(@NonNull Message msg) {
+//            sharedViewModel.getCallbackInstance().onSpeechServiceFinished();
+//            if(isBound){
+//                finishService();
+//            }
+//        }
+//    }
 }

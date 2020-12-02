@@ -29,6 +29,8 @@ import androidx.annotation.Nullable;
 public class VDAudioService extends Service {
     private ServiceHandler serviceHandler;
     private IBinder vdBinder = new VDBinder();
+    private MediaPlayer mediaPlayer;
+    private int position;
 
     @Override
     public void onCreate() {
@@ -41,17 +43,24 @@ public class VDAudioService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Message message = serviceHandler.obtainMessage();
-        message.arg1 = startId;
-        message.setData(intent.getExtras());
-        serviceHandler.sendMessage(message);
+//        Message message = serviceHandler.obtainMessage();
+//        message.arg1 = startId;
+//        message.setData(intent.getExtras());
+//        serviceHandler.sendMessage(message);
+        playback(intent.getExtras());
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+//        if (mediaPlayer.isPlaying()){
+//            position = mediaPlayer.getCurrentPosition();
+//            mediaPlayer.stop();
+//        }
+//        VDHelper.debugLog(this.getClass().getSimpleName(), "Service Destroyed;");
     }
+
 
 
     @Nullable
@@ -61,6 +70,7 @@ public class VDAudioService extends Service {
 //        message.arg1 = startId;
 //        message.setData(intent.getExtras());
 //        serviceHandler.sendMessage(message);
+        playback(intent.getExtras());
         return vdBinder;
     }
 
@@ -71,7 +81,7 @@ public class VDAudioService extends Service {
 
     @Override
     public void onRebind(Intent intent) {
-        super.onRebind(intent);
+        playback(intent.getExtras());
     }
 
     private final class ServiceHandler extends Handler{
@@ -92,7 +102,7 @@ public class VDAudioService extends Service {
                 try (OutputStream outputStream = new FileOutputStream(mp3File)) {
                     outputStream.write(audioContents.toByteArray());
                 }
-                MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.fromFile(mp3File));
+                mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.fromFile(mp3File));
                 VDHelper.debugLog(getClass().getSimpleName(), getApplicationContext().getString(R.string.service_tts_speaking));
                 mediaPlayer.start();
                 mediaPlayer.setOnCompletionListener( mp -> {
@@ -121,8 +131,49 @@ public class VDAudioService extends Service {
                         "IOException Thrown. Details-> "+ex.getMessage());
             }
             //arg1 is the id of the specific service
-            stopSelf(msg.arg1);
+          //  stopSelf(msg.arg1);
 
+        }
+    }
+
+    private void playback(Bundle msg){
+        //VDHelper.debugLog(this.getClass().getSimpleName(), getApplication().getString(R.string.handling_message));
+        Bundle bundle  = msg;
+        Messenger messenger = bundle.getParcelable("serviceMessenger");
+        byte [] ttsAudioBytes = bundle.getByteArray(VDHelper.TTS_AUDIO_BYTES);
+        try{
+            ByteString audioContents = ByteString.copyFrom(ttsAudioBytes);
+            File mp3File = new File(VDHelper.MP3FILEPATH);
+            try (OutputStream outputStream = new FileOutputStream(mp3File)) {
+                outputStream.write(audioContents.toByteArray());
+            }
+            mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.fromFile(mp3File));
+            VDHelper.debugLog(getClass().getSimpleName(), getApplicationContext().getString(R.string.service_tts_speaking));
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener( mp -> {
+                        //ivdTextOperations.onCloudTTSFinished(response);
+                        mp.reset();
+                        mp.release();
+                        mp = null;
+                        VDHelper.debugLog(getClass().getSimpleName(), getApplicationContext().getString(R.string.service_tts_finished));
+                        try {
+                            messenger.send(new Message());
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+            );
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                VDHelper.debugLog(getClass().getSimpleName(),
+                        "Mediaplayer failed. Details:\n" +
+                                "mp :" + mp + "\n" +
+                                "what : " + what + "\n" +
+                                " extra : " + extra);
+                return false;
+            });
+        }catch (IOException ex){
+            Log.e(getClass().getSimpleName(),
+                    "IOException Thrown. Details-> "+ex.getMessage());
         }
     }
 
