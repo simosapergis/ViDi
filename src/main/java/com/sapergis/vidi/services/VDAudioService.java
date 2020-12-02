@@ -47,7 +47,7 @@ public class VDAudioService extends Service {
 //        message.arg1 = startId;
 //        message.setData(intent.getExtras());
 //        serviceHandler.sendMessage(message);
-        playback(intent.getExtras());
+//        playback(intent.getExtras());
         return START_STICKY;
     }
 
@@ -66,11 +66,11 @@ public class VDAudioService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-//        Message message = serviceHandler.obtainMessage();
-//        message.arg1 = startId;
-//        message.setData(intent.getExtras());
-//        serviceHandler.sendMessage(message);
-        playback(intent.getExtras());
+        Message message = serviceHandler.obtainMessage();
+        //message.arg1 = startId;
+        message.setData(intent.getExtras());
+        serviceHandler.sendMessage(message);
+//        playback(intent.getExtras());
         return vdBinder;
     }
 
