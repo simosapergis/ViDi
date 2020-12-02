@@ -1,6 +1,5 @@
 package com.sapergis.vidi.services;
 
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -57,13 +56,7 @@ public class VDAudioService extends Service {
         return true;
     }
 
-    @Override
-    public void onRebind(Intent intent) {
-       sendMessage(intent);
-    }
-
     private final class ServiceHandler extends Handler{
-
         public ServiceHandler(Looper looper){
             super(looper);
         }
@@ -122,6 +115,5 @@ public class VDAudioService extends Service {
             return VDAudioService.this;
         }
     }
-
 
 }
