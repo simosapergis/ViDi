@@ -1,21 +1,13 @@
 package com.sapergis.vidi.viewmodels;
 
 import android.app.Application;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Messenger;
 import android.widget.Toast;
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.protobuf.ByteString;
@@ -31,40 +23,43 @@ import com.sapergis.vidi.implementation.VDTextRecognizer;
 import com.sapergis.vidi.implementation.VDDeviceTTS;
 import com.sapergis.vidi.implementation.VDTextTranslator;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
-import com.sapergis.vidi.services.VDAudioService;
+import com.sapergis.vidi.services.VDServiceManager;
+
 import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-public class SharedViewModel extends AndroidViewModel implements IVDTextOperations, ServiceConnection {
+public class SharedViewModel extends AndroidViewModel implements IVDTextOperations{
     private final String className = getClass().getSimpleName();
     private final MutableLiveData<VDBitmap> captured = new MutableLiveData<>();
     private final MutableLiveData<VDText> validRecognizedText = new MutableLiveData<>();
     private final MutableLiveData<Boolean> hasInternetConnection = new MutableLiveData<>();
     private final MutableLiveData<byte[]> googleTTsResponse = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> operationFinished;
-    private final VDCloudTTS vdCloudTTS;
-    private final VDDeviceTTS vdDeviceTTS;
     private final VDApplication application;
+    private MutableLiveData<Boolean> operationFinished;
+    private VDCloudTTS vdCloudTTS;
+    private VDDeviceTTS vdDeviceTTS;
     private ConnectivityManager cm;
     private ConnectivityManager.NetworkCallback networkCallback;
     private NetworkRequest networkRequest;
+    private VDServiceManager vdServiceManager;
     private boolean connected;
-    private boolean isBound;
-    private Thread thread;
-    private IBinder service ;
-    private Intent serviceIntent;
 
     public SharedViewModel(@NonNull Application application) {
         super(application);
         this.application = (VDApplication)application;
+        initialize();
+    }
+
+    private void initialize(){
         vdCloudTTS = new VDCloudTTS(application, this);
         vdDeviceTTS = new VDDeviceTTS(application);
+        operationFinished = new MutableLiveData<>(Boolean.valueOf(true));
+        vdServiceManager = new VDServiceManager(application, this);
         initConnectivityManager();
         registerCMCallback();
-        operationFinished = new MutableLiveData<>(Boolean.valueOf(true));
     }
 
     public void setBitmap (VDBitmap vdBitmap){
@@ -124,7 +119,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         if(connected) {
             //vdCloudTTS.runTextToSpeechOnCloud(vdText.getTranslatedText());
             VDThread vdThread = new VDThread(vdCloudTTS, vdText.getTranslatedText());
-            thread = new Thread(vdThread);
+            Thread thread = new Thread(vdThread);
             thread.setPriority(Thread.MAX_PRIORITY);
             thread.setUncaughtExceptionHandler((t, e) -> {
                 VDHelper.debugLog(getClass().getSimpleName(), "Exception caught for" +
@@ -138,21 +133,16 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         }
     }
 
-
     @Override
     public void onCloudTTSFinished(SynthesizeSpeechResponse response) {
-         //setOperationFinished(true);
         if(response !=null ){
             ByteString byteString = response.toByteString();
             byte[] byteArray =  byteString.toByteArray();
-           // googleTTsResponse.postValue(byteArray);
-            startAudioService(byteArray);
+            vdServiceManager.startAudioService(byteArray);
         }else{
             VDHelper.debugLog(getClass().getSimpleName(),
                     application.getString(R.string.google_tts_resp_null));
         }
-
-
     }
 
     @Override
@@ -204,26 +194,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
 
     }
 
-    private void startAudioService(byte [] ttsAudioBytes){
-            VDHelper.debugLog(this.getClass().getSimpleName(),
-                    application.getString(R.string.starting_audio_service));
-            serviceIntent = new Intent(application, VDAudioService.class);
-            Bundle bundle = new Bundle();
-            bundle.putByteArray(VDHelper.TTS_AUDIO_BYTES, ttsAudioBytes);
-            MessageHandler messageHandler = new MessageHandler(Looper.getMainLooper());
-            Messenger messenger = new Messenger(messageHandler);
-            bundle.putParcelable("serviceMessenger", messenger);
-            serviceIntent.putExtras(bundle);
-            //application.startService(serviceIntent);
-           isBound =  application.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
-
-    }
-
-    private void finishService(){
-        application.unbindService(this);
-        application.stopService(serviceIntent);
-        isBound = false;
-    }
     /**
     This is getting handled by the activity/fragment
      */
@@ -242,7 +212,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     private void updateNetworkStatus(boolean isConnected) {
         connected = isConnected;
         hasInternetConnection.postValue(isConnected);
-
     }
 
     public void notifyConnectionEstablished(){
@@ -258,37 +227,6 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     public void notifyCheckConnection(){
         Toast.makeText(application, application.getString(R.string.connection_check),
                 Toast.LENGTH_LONG ).show();
-    }
-
-    @Override
-    public void onBindingDied(ComponentName name) {
-    }
-
-    @Override
-    public void onNullBinding(ComponentName name) {
-    }
-
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-            this.service = service;
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-    }
-
-    private class MessageHandler extends Handler{
-        public MessageHandler(@NonNull Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            onSpeechServiceFinished();
-            if(isBound){
-                finishService();
-            }
-        }
     }
 
 }

@@ -38,20 +38,12 @@ public class CameraFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-//        sharedViewModel.isConnected().observe(this, isConnected ->{
-//            //if(getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED){
-//                manageCamera(isConnected);
-//            //}
-//        });
-//        sharedViewModel.getValidRecognizedText().removeObservers(this);
-//        sharedViewModel.getValidRecognizedText().observe(this, vdTextObserver);
         sharedViewModel.isTTSOperationFinished().observe(this, isFinished -> {
             if (isFinished &&
                     getViewLifecycleOwner().getLifecycle().getCurrentState() == Lifecycle.State.RESUMED) {
                 manageCamera(IVDAutoCapture.START);
             }
         });
-
     }
 
     @Override
@@ -87,10 +79,9 @@ public class CameraFragment extends Fragment {
 
     private void manageCamera(String action) {
         if( action.equals(IVDAutoCapture.START) ){
-            //TODO Correct the below behavior when changing orientations
             //TODO fix capture repetitions
             vdCamera.setAutoCapture(sharedViewModel.getHandler());
-        }else if ( action.equals(IVDAutoCapture.STOP) ){
+        }else if (action.equals(IVDAutoCapture.STOP) ){
         //    vdCamera.releaseAutoCapture();
         }
     }
