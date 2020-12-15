@@ -28,12 +28,12 @@ public class VDCloudTTSTest extends TestCase {
     public void setUp() throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.sapergis.vidi", appContext.getPackageName());
-        vdCloudTTS = new VDCloudTTS(appContext, getIVDTextOperations());
+//       vdCloudTTS = new VDCloudTTS(appContext, getIVDTextOperations());
     }
 
     @Test
     public void runTextToSpeechOnCloudTest() {
-            getIVDTextOperations().onTextToSpeechFinished();
+           //getIVDTextOperations().onTextToSpeechFinished();
     }
 
     @After
@@ -41,37 +41,37 @@ public class VDCloudTTSTest extends TestCase {
         vdCloudTTS.runTextToSpeechOnCloud("Καλημέρα");
     }
 
-    public IVDTextOperations getIVDTextOperations (){
-        return new IVDTextOperations() {
-            @Override
-            public void textRecognitionOn(Bitmap bitmap) {
-
-            }
-
-            @Override
-            public void onTextRecognized(String recognizedText) {
-
-            }
-
-            @Override
-            public void onLanguageIdentified(String languageCode, String recognizedText) {
-
-            }
-
-            @Override
-            public void onTextTranslated(VDText vdText) {
-
-            }
-
-            @Override
-            public void onTextToSpeechFinished() {
-                Log.i("VDCloudTTSTest", "TTS playback finished");
-            }
-
-            @Override
-            public void onOperationTerminated() {
-
-            }
-        };
-    }
+//    public IVDTextOperations getIVDTextOperations (){
+//        return new IVDTextOperations() {
+//            @Override
+//            public void textRecognitionOn(Bitmap bitmap) {
+//
+//            }
+//
+//            @Override
+//            public void onTextRecognized(String recognizedText) {
+//
+//            }
+//
+//            @Override
+//            public void onLanguageIdentified(String languageCode, String recognizedText) {
+//
+//            }
+//
+//            @Override
+//            public void onTextTranslated(VDText vdText) {
+//
+//            }
+//
+//            @Override
+//            public void onTextToSpeechFinished() {
+//                Log.i("VDCloudTTSTest", "TTS playback finished");
+//            }
+//
+//            @Override
+//            public void onOperationTerminated() {
+//
+//            }
+//        };
+//    }
 }

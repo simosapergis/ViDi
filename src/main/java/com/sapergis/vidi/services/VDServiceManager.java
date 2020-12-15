@@ -42,7 +42,7 @@ public class VDServiceManager implements ServiceConnection {
         isBound =  application.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
     }
 
-    private void finishService(){
+    private void finishAudioService(){
         application.unbindService(this);
         application.stopService(serviceIntent);
         isBound = false;
@@ -77,7 +77,7 @@ public class VDServiceManager implements ServiceConnection {
         public void handleMessage(@NonNull Message msg) {
             ivdTextOperations.onSpeechServiceFinished();
             if(isBound){
-                finishService();
+                finishAudioService();
             }
         }
     }

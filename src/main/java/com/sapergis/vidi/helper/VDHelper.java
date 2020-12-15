@@ -14,6 +14,11 @@ public class VDHelper {
     public static final String TAG = "ViDi =>";
 
     /**
+     *
+     */
+    public static final String VD_SHARED_PREFERENCES = "VD_SHARED_PREFERENCES";
+
+    /**
 
      */
     public static final String [] LOCALES = {"en","el"};

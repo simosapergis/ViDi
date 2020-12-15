@@ -1,6 +1,17 @@
 <resources>
-    <string name="app_name">Vidi</string>
+    <string name="app_name">ViDi</string>
     <string name="title_activity_main">MainActivity</string>
+
+    <!--Preferences-->
+    <string name="preferences_title">Preferences</string>
+    <string name="capture_sequence_title">Capture Sequence</string>
+    <string name="input_language_title">Input Language</string>
+    <string name="output_language_title">Output Language</string>
+    <string name="capture_seq_key">capture_sequence</string>
+    <string name="input_lang_key">input_lang</string>
+    <string name="output_lang_key">output_lang</string>
+    <string name="en">en</string>
+    <string name="el">el</string>
 
     <string name="connection_lost">Connection to the internet has been lost</string>
     <string name="connection_check">Please check your internet connection</string>
@@ -29,4 +40,33 @@
     <string name="google_tts_resp_null">"Google tts response was null."</string>
     <string name="starting_audio_service">Starting audio service…</string>
     <string name="handling_message">Handling the message inside service handler</string>
+
+    <string-array name="languages">
+        <item>en</item>
+        <item>el</item>
+    </string-array>
+
+    <string-array name="languageValues">
+        <item>en</item>
+        <item>el</item>
+    </string-array>
+
+    <string-array name="seconds">
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+    <string-array name="secondsValues">
+        <item>5000</item>
+        <item>6000</item>
+        <item>7000</item>
+        <item>8000</item>
+        <item>9000</item>
+        <item>10000</item>
+    </string-array>
+
 </resources>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <PreferenceCategory
+        android:title="pref2">
+
+        <ListPreference
+            android:key="multilistkey"
+            android:title="MultiListKey"
+            android:summary="value"
+            android:defaultValue="EN"
+            android:entries="@array/languages"
+            android:entryValues="@array/languages"
+            />
+
+        <EditTextPreference
+            android:key="@string/app_name"
+            android:title="@string/app_name"
+            android:summary="@string/capture_no"/>
+
+        <Preference
+            android:key="preference"
+            android:title="pref3"
+            android:summary="basic_preference"/>
+
+        <Preference
+            android:key="stylized"
+            android:title="title_stylish_preference"
+            android:summary="summary_stylish_preference"/>
+
+        <Preference
+            android:key="icon"
+            android:title="title_icon_preference"
+            android:summary="summary_icon_preference"
+            android:icon="@android:drawable/ic_menu_camera"/>
+
+        <Preference
+            android:key="single_line_title"
+            android:title="Singe"
+            android:summary="single_line_title_preference"
+            android:singleLineTitle="true"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="widgets">
+
+        <CheckBoxPreference
+            android:key="checkbox"
+            android:title="checkBOX"
+            android:summary="checkboxpref"/>
+
+        <EditTextPreference
+            android:key="@string/app_name"
+            android:title="@string/app_name"
+            android:summary="@string/capture_no"/>
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
