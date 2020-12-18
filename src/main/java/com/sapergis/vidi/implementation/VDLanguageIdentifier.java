@@ -1,4 +1,6 @@
 package com.sapergis.vidi.implementation;
+import android.content.SharedPreferences;
+
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.nl.languageid.LanguageIdentification;
 import com.google.mlkit.nl.languageid.LanguageIdentifier;
@@ -12,24 +14,36 @@ public class VDLanguageIdentifier {
 
     }
 
-    public static void identify(String text, IVDTextOperations iVDTextOperations){
+    public static void identify(String text, IVDTextOperations iVDTextOperations,
+                                String inputLanguage){
         LanguageIdentifier languageIdentifier = LanguageIdentification.getClient();
         Task<String> result = languageIdentifier.identifyLanguage(text);
         result.addOnSuccessListener(languageCode ->{
-                                if ( !UND.equals(languageCode) ) {
+                                String message;
+                                //Checking if language was recognized and also if it is equals to
+                                //the input language we set in preferences
+                                if ( !UND.equals(languageCode) && languageCode.equals(inputLanguage)) {
                                     iVDTextOperations.onLanguageIdentified(languageCode, text);
-                                } else {
-                                    String message = "Can't identify language.";
-                                    VDHelper.debugLog("VDLanguageIdentifier", message);
-                                    iVDTextOperations.onOperationTerminated(message);
+                                }else if (UND.equals(languageCode)){
+                                    message = "Can't identify language.";
+                                    terminate(iVDTextOperations, message);
+                                }
+                                else {
+                                    message = "Language not supported";
+                                    terminate(iVDTextOperations, message);
                                 }
 
                         })
                 .addOnFailureListener(e -> {
                         // Model couldn’t be loaded or other internal error.
                         // ...
-                        iVDTextOperations.onOperationTerminated(e.getMessage());
+                        terminate(iVDTextOperations, e.getMessage());
                     })
                 .addOnCompleteListener(task -> languageIdentifier.close());
+    }
+
+    private static void terminate(IVDTextOperations ivdTextOperations, String message){
+        VDHelper.debugLog("VDLanguageIdentifier", message);
+        ivdTextOperations.onOperationTerminated(message);
     }
 }

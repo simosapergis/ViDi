@@ -2,6 +2,7 @@ package com.sapergis.vidi.viewmodels;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -30,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.preference.PreferenceManager;
 
 public class SharedViewModel extends AndroidViewModel implements IVDTextOperations{
     private final String className = getClass().getSimpleName();
@@ -101,7 +103,10 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
 
     @Override
     public void onTextRecognized(String recognizedText) {
-        VDLanguageIdentifier.identify(recognizedText, this);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
+        String inputLanguage = preferences.getString( application.getString(R.string.input_lang_key),
+                application.getString(R.string.en));
+        VDLanguageIdentifier.identify(recognizedText, this, inputLanguage);
     }
 
     @Override
@@ -158,6 +163,7 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     @Override
     public void onOperationTerminated(String message) {
         VDHelper.debugLog(getClass().getSimpleName(), application.getString(R.string.operation_terminated) +" "+message);
+        showToast(message);
         setOperationFinished(true);
     }
 
@@ -215,17 +221,19 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
     }
 
     public void notifyConnectionEstablished(){
-        Toast.makeText(application, application.getString(R.string.connection_restablished),
-                Toast.LENGTH_LONG ).show();
+        showToast( application.getString(R.string.connection_restablished) );
     }
 
     public void notifyConnectionLost(){
-        Toast.makeText(application, application.getString(R.string.connection_lost),
-                Toast.LENGTH_LONG ).show();
+        showToast( application.getString(R.string.connection_lost) );
     }
 
     public void notifyCheckConnection(){
-        Toast.makeText(application, application.getString(R.string.connection_check),
+        showToast( application.getString(R.string.connection_check) );
+    }
+
+    private void showToast(String message){
+        Toast.makeText(application, message,
                 Toast.LENGTH_LONG ).show();
     }
 

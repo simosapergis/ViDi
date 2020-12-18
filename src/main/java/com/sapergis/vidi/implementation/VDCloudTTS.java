@@ -76,32 +76,6 @@ public class VDCloudTTS {
             }else{
                 VDHelper.debugLog(className, context.getString(R.string.get_google_cloud_tts_res));
                 ivdTextOperations.onCloudTTSFinished(response);
-/*
-                ByteString audioContents = response.getAudioContent();
-                //TODO : DO save the mp3 in a more generic way
-                File mp3File = new File(VDHelper.MP3FILEPATH);
-                try (OutputStream outputStream = new FileOutputStream(mp3File)) {
-                    outputStream.write(audioContents.toByteArray());
-                }
-                MediaPlayer mediaPlayer = MediaPlayer.create(context, Uri.fromFile(mp3File));
-                VDHelper.debugLog(getClass().getSimpleName(), context.getString(R.string.cloud_tts_speaking));
-                mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener( mp -> {
-                            //ivdTextOperations.onCloudTTSFinished(response);
-                            mp.release();
-                            mp = null;
-                            VDHelper.debugLog(getClass().getSimpleName(), context.getString(R.string.cloud_tts_finished));
-                        }
-                );
-                mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                    VDHelper.debugLog(getClass().getSimpleName(),
-                            "Mediaplayer failed. Details:\n" +
-                                    "mp :" + mp + "\n" +
-                                    "what : " + what + "\n" +
-                                    " extra : " + extra);
-                    return false;
-                });
-*/
             }
 
         } catch (Exception e) {

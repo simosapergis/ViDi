@@ -2,11 +2,7 @@ package com.sapergis.vidi.implementation;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionCloudTextRecognizerOptions;
@@ -19,7 +15,6 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
 import java.util.Arrays;
-import androidx.annotation.NonNull;
 
 
 public class VDTextRecognizer {
@@ -49,24 +44,17 @@ public class VDTextRecognizer {
         InputImage inputImage = InputImage.fromBitmap(bitmap, 90);
         TextRecognizer recognizer = TextRecognition.getClient();
         Task<Text> result = recognizer.process(inputImage);
-        result.addOnSuccessListener(new OnSuccessListener<Text>() {
-                            @Override
-                            public void onSuccess(Text visionText) {
-                                // Task completed successfully
-                                VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [DEVICE]=>" +visionText.getText());
-                                iVDTextOperations.onTextRecognized(visionText.getText());
-                                recognizer.close();
-                            }
-                        })
-                        .addOnFailureListener(
-                                new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.e("TextRecognitionFailure", e.toString());
-                                        iVDTextOperations.onOperationTerminated(e.getMessage());
-                                        recognizer.close();
-                                    }
-                                });
+        result.addOnSuccessListener( visionText -> {
+            // Task completed successfully
+            VDHelper.debugLog("VDTextRecognizer", "TEXT FOUND [DEVICE]=>" +visionText.getText());
+            iVDTextOperations.onTextRecognized(visionText.getText());
+            recognizer.close();
+        });
+        result.addOnFailureListener( e -> {
+                    Log.e("TextRecognitionFailure", e.toString());
+                    iVDTextOperations.onOperationTerminated(e.getMessage());
+                    recognizer.close();
+        });
 
     }
 

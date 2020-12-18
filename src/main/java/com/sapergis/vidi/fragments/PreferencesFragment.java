@@ -6,15 +6,12 @@ import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import com.sapergis.vidi.R;
-import com.sapergis.vidi.helper.VDHelper;
 import com.sapergis.vidi.interfaces.IVDAutoCapture;
-
-import java.util.List;
-
 import androidx.annotation.Nullable;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 
 public class PreferencesFragment extends PreferenceFragmentCompat {
@@ -26,8 +23,7 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        SharedPreferences sharedPreferences = getActivity()
-                .getSharedPreferences(VDHelper.VD_SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         constructPreferences(sharedPreferences);
     }
 

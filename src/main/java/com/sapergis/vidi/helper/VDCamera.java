@@ -115,10 +115,8 @@ public class VDCamera implements IVDAutoCapture{
                                     VDBitmap vdBitmap = new VDBitmap();
                                     vdBitmap.setBitmapImage(bitmap);
                                     vdBitmap.setDegreesToRotate(degreesToRotate);
-//                                    vdBitmap.setWidth(centerX);
-//                                    vdBitmap.setHeight(centerY);
                                     sharedViewModel.setBitmap(vdBitmap);
-                                    //We delete the picture right after we are done with text process
+                                    //Delete the picture right after text identification finished
                                     boolean imageDeleted =  file.delete();
                                     VDHelper.debugLog(className, fragment.getString(R.string.image_deleted) + imageDeleted);
 
@@ -150,14 +148,6 @@ public class VDCamera implements IVDAutoCapture{
 
         };
     }
-
-//    public synchronized void cameraWait() throws InterruptedException {
-//        camera.wait();
-//    }
-//
-//    public synchronized void cameraNotify(){
-//        camera.notify();
-//    }
 
     private void updateTransform() {
         android.graphics.Matrix matrix = new Matrix();
@@ -195,23 +185,6 @@ public class VDCamera implements IVDAutoCapture{
 
     @Override
     public void setAutoCapture(Handler handler) {
-//        VDHelper.debugLog(className, fragment.getString(R.string.starting_autocapture));
-//        capture = new Runnable() {
-////            @Override
-////            public void run() {
-////                captureButton.performClick();
-////                if(count++ < captureRepetitions ){
-////                    VDHelper.debugLog(className, fragment.getString(R.string.capture_no)+ count);
-////                    captureHandler.postDelayed(this, interval);
-////                }
-////            }
-////        };
-////        captureHandler.post(capture);
-//        Looper looper = Looper.getMainLooper();
-//        MessageQueue mq =  looper.getQueue();
-//        handler = new Handler(Looper.myLooper());
-//        handler.postDelayed(captureButton::performClick, 5000);
-//        VDHelper.debugLog(getClass().getSimpleName(), "Handler instantiated..");
         capture = captureButton::performClick;
         if(!handler.hasCallbacks(capture)){
             handler.postDelayed(capture, 5000);
@@ -222,13 +195,6 @@ public class VDCamera implements IVDAutoCapture{
 
     }
 
-//    public boolean hasAutoCaptureCallbacks (){
-//        return capture != null && handler.hasCallbacks(capture);
-//    }
-//
-//    public void removeAutoCaptureCallbacks(){
-//        handler.removeCallbacksAndMessages(null);
-//    }
     @Override
     public void releaseAutoCapture() {
         captureHandler.removeCallbacks(capture);

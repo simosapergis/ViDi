@@ -9,14 +9,14 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import com.sapergis.vidi.fragments.CameraFragment;
 import com.sapergis.vidi.fragments.CapturedImageFragment;
-import com.sapergis.vidi.fragments.PreferencesFragment;
 import com.sapergis.vidi.helper.GrantPermissions;
-import com.sapergis.vidi.helper.VDHelper;
+import com.sapergis.vidi.interfaces.IVDAutoCapture;
 
 import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,9 +36,11 @@ public class MainActivity extends AppCompatActivity {
         }else{
             GrantPermissions.requestPermissions(this);
         }
-        //getPreferences().contains()
-        SharedPreferences sharedPreferences = getSharedPreferences(VDHelper.VD_SHARED_PREFERENCES,MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Map prefs = sharedPreferences.getAll();
+        if ( prefs.isEmpty() ) {
+           setDefaultPreferences(sharedPreferences);
+        }
 
     }
 
@@ -82,13 +84,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-//    private void optionsSetup(int seconds){
-//        SharedPreferences sharedPreferences =
-//                getSharedPreferences(String.valueOf(R.string.vd_shared_pref), MODE_PRIVATE);
-//        SharedPreferences.Editor editor =
-//                sharedPreferences.edit().putInt(String.valueOf(R.string.capture_seq_val), seconds);
-//        editor.apply();
-//    }
-
+    private void setDefaultPreferences(SharedPreferences sharedPreferences){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString( getString(R.string.input_lang_key), getString(R.string.en));
+        editor.putString( getString(R.string.output_lang_key), getString(R.string.el));
+        editor.putString( getString(R.string.capture_seq_key), String.valueOf(IVDAutoCapture.DEFAULT_INTERVAL));
+        editor.apply();
+    }
 
 }
