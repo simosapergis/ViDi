@@ -105,14 +105,18 @@ public class SharedViewModel extends AndroidViewModel implements IVDTextOperatio
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(application);
         String inputLanguage = preferences.getString( application.getString(R.string.input_lang_key),
                 application.getString(R.string.en));
-        VDLanguageIdentifier.identify(recognizedText, this, inputLanguage);
+        String outputLanguage = preferences.getString( application.getString(R.string.output_lang_key),
+                application.getString(R.string.el));
+        VDText vdText = new VDText();
+        vdText.setTranslateFrom(inputLanguage);
+        vdText.setTraslateTo(outputLanguage);
+        vdText.setRawText(recognizedText);
+        VDLanguageIdentifier.identify(vdText, this, inputLanguage);
     }
 
     @Override
-    public void onLanguageIdentified(String languageCode, String recognizedText) {
+    public void onLanguageIdentified(String languageCode, VDText vdText) {
         VDHelper.debugLog(getClass().getSimpleName(), "Identified language code is ["+languageCode+"]");
-        VDText vdText = new VDText();
-        vdText.setRawText(recognizedText);
         vdText.setIdentifiedLanguage(languageCode);
         setValidRecognizedText(vdText);
         VDTextTranslator.initiateDeviceTranslation(vdText, this);

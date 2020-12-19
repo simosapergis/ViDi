@@ -9,7 +9,7 @@ public interface IVDTextOperations {
 
     void textRecognitionOn(Bitmap bitmap);
     void onTextRecognized(String recognizedText);
-    void onLanguageIdentified(String languageCode, String recognizedText);
+    void onLanguageIdentified(String languageCode, VDText vdText);
     void onTextTranslated(VDText vdText);
     void onCloudTTSFinished(SynthesizeSpeechResponse response);
     void onDeviceTTSFinished();

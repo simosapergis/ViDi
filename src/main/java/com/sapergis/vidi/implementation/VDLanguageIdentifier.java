@@ -5,6 +5,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.mlkit.nl.languageid.LanguageIdentification;
 import com.google.mlkit.nl.languageid.LanguageIdentifier;
 import com.sapergis.vidi.helper.VDHelper;
+import com.sapergis.vidi.helper.VDText;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
 
 public class VDLanguageIdentifier {
@@ -14,16 +15,16 @@ public class VDLanguageIdentifier {
 
     }
 
-    public static void identify(String text, IVDTextOperations iVDTextOperations,
+    public static void identify(VDText vdText, IVDTextOperations iVDTextOperations,
                                 String inputLanguage){
         LanguageIdentifier languageIdentifier = LanguageIdentification.getClient();
-        Task<String> result = languageIdentifier.identifyLanguage(text);
+        Task<String> result = languageIdentifier.identifyLanguage(vdText.getRawText());
         result.addOnSuccessListener(languageCode ->{
                                 String message;
                                 //Checking if language was recognized and also if it is equals to
                                 //the input language we set in preferences
                                 if ( !UND.equals(languageCode) && languageCode.equals(inputLanguage)) {
-                                    iVDTextOperations.onLanguageIdentified(languageCode, text);
+                                    iVDTextOperations.onLanguageIdentified(languageCode, vdText);
                                 }else if (UND.equals(languageCode)){
                                     message = "Can't identify language.";
                                     terminate(iVDTextOperations, message);

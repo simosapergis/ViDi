@@ -4,7 +4,7 @@ public class VDText {
     private String rawText;
     private String translatedText;
     private String identifiedLanguage;
-
+    private String translateFrom;
     private String traslateTo;
 
     public String getRawText() {
@@ -38,4 +38,13 @@ public class VDText {
     public void setTraslateTo(String traslateTo) {
         this.traslateTo = traslateTo;
     }
+
+    public String getTranslateFrom() {
+        return translateFrom;
+    }
+
+    public void setTranslateFrom(String translateFrom) {
+        this.translateFrom = translateFrom;
+    }
+
 }
