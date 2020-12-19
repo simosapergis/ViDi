@@ -25,7 +25,6 @@ import com.sapergis.vidi.implementation.VDDeviceTTS;
 import com.sapergis.vidi.implementation.VDTextTranslator;
 import com.sapergis.vidi.interfaces.IVDTextOperations;
 import com.sapergis.vidi.services.VDServiceManager;
-
 import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;

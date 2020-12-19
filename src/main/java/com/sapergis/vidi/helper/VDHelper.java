@@ -2,11 +2,7 @@ package com.sapergis.vidi.helper;
 
 import android.util.Log;
 
-import java.util.HashMap;
-
 public class VDHelper {
-
-    public static String isConnected;
 
     /**
 
@@ -14,10 +10,9 @@ public class VDHelper {
     public static final String TAG = "ViDi =>";
 
     /**
-     *
-     */
-    public static final String VD_SHARED_PREFERENCES = "VD_SHARED_PREFERENCES";
 
+     */
+    public static final String UTILITY_CLASS = "Utility class";
     /**
 
      */

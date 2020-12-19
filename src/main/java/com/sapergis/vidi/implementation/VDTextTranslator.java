@@ -15,6 +15,10 @@ import com.sapergis.vidi.interfaces.IVDTextOperations;
 
 public class VDTextTranslator {
 
+    private VDTextTranslator(){
+        throw new IllegalStateException(VDHelper.UTILITY_CLASS);
+    }
+
     public static void initiateDeviceTranslation (VDText vdText, IVDTextOperations ivdTextOperations) {
         TranslatorOptions options = new TranslatorOptions.Builder()
                 //.setSourceLanguage(TranslateLanguage.fromLanguageTag(vdText.getIdentifiedLanguage()))
